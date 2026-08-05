@@ -41,18 +41,7 @@ export default async function Home() {
     console.warn('Failed to fetch projects from MongoDB:', error)
   }
 
-  const services: ServiceType[] = [
-    { _id: '1', title: "Custom Web Application Development", order: 1, description: "We design and build custom web applications tailored to your workflows, ensuring scalable architecture and exceptional user experiences.", techStack: ["React", "Next.js", "Node.js"] },
-    { _id: '2', title: "SaaS Application Development", order: 2, description: "End-to-end SaaS platforms built for multi-tenancy, high availability, and rapid scaling with automated billing integrations.", techStack: ["Stripe", "PostgreSQL", "Redis"] },
-    { _id: '3', title: "Desktop Application Development", order: 3, description: "Cross-platform desktop solutions delivering native performance and deep OS integration for complex business requirements.", techStack: ["Electron", "Tauri", "Rust"] },
-    { _id: '4', title: "Progressive Web App (PWA) Development", order: 4, description: "App-like experiences directly in the browser, featuring offline capabilities, push notifications, and ultra-fast load times.", techStack: ["Service Workers", "Web App Manifest", "IndexedDB"] },
-    { _id: '5', title: "AI Solutions & Integration", order: 5, description: "Injecting powerful machine learning models and generative AI into your products to automate tasks and unlock new capabilities.", techStack: ["OpenAI", "LangChain", "Python"] },
-    { _id: '6', title: "API Development & Integration", order: 6, description: "Robust REST and GraphQL APIs designed for secure, high-throughput data exchange between your microservices and third parties.", techStack: ["GraphQL", "Express", "Docker"] },
-    { _id: '7', title: "E-Commerce Website Development", order: 7, description: "High-conversion headless commerce architectures optimizing the entire customer journey from product discovery to checkout.", techStack: ["Next.js", "Medusa", "Stripe"] },
-    { _id: '8', title: "Business & Corporate Websites", order: 8, description: "Premium, highly optimized marketing sites and corporate landing pages engineered to establish authority and drive leads.", techStack: ["Sanity", "Framer Motion", "Tailwind"] },
-    { _id: '9', title: "WordPress Development", order: 9, description: "Custom themes and plugins tailored for performance and security, breaking free from bloated templates.", techStack: ["PHP", "MySQL", "WP-CLI"] },
-    { _id: '10', title: "Shopify Development", order: 10, description: "Bespoke Shopify storefronts integrating advanced inventory APIs and highly customized liquid layouts.", techStack: ["Liquid", "Hydrogen", "Oxygen"] }
-  ];
+
 
   const projects = mongoProjects.length > 0 ? mongoProjects : [
     { _id: '1', title: "Hamdard Enterprises", category: "Web App", tech: "Next.js, Node.js", link: "https://hamdardenterprises.vercel.app/", imageUrl: "/hamdard.png" },
@@ -69,7 +58,7 @@ export default async function Home() {
       </div>
       <Scene1Hero />
       <Scene2Tension />
-      <Scene3Services services={services} />
+      <Scene3Services />
       <Scene4Process />
       <Scene5TechStack />
       <Scene6Portfolio projects={projects} />
