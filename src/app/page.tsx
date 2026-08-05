@@ -13,7 +13,14 @@ import { AnimatedLogo } from '@/components/3d/AnimatedLogo'
 import { sanityFetch } from '@/sanity/lib/fetch'
 import { servicesQuery } from '@/sanity/lib/queries'
 import { ServiceType } from '@/components/scenes/Scene3Services'
-import { ProjectType } from '@/components/scenes/Scene6Portfolio'
+export interface ProjectType {
+  _id: string;
+  title: string;
+  category: string;
+  tech: string;
+  link: string | null;
+  imageUrl: string | null;
+}
 import connectToDatabase from '@/lib/db'
 import Project from '@/models/Project'
 
