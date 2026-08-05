@@ -2,8 +2,48 @@
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import { useState } from 'react'
 
 export function Scene9CTA() {
+  const [email, setEmail] = useState('')
+  const [error, setError] = useState('')
+
+  const handleGetInTouch = () => {
+    if (!email.trim()) {
+      setError('Please enter your email address first.')
+      return
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.')
+      return
+    }
+    
+    setError('')
+    
+    const subject = encodeURIComponent("Project Inquiry - WebDev Solutions")
+    const body = encodeURIComponent(`Hello WebDev Solutions team,
+
+I am interested in your development services and would like to discuss a potential project.
+
+My contact email is: ${email}
+
+Project Type (e.g., Custom Web App, SaaS, E-Commerce): 
+Budget Range: 
+Timeline: 
+
+Brief Description:
+
+
+Thanks,
+[Your Name]`)
+
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=webdev.team002@gmail.com&su=${subject}&body=${body}`
+    
+    window.open(gmailUrl, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <section id="contact" className="relative h-screen w-full flex items-center justify-center bg-brand-navy overflow-hidden">
       {/* PNG Logo Background */}
@@ -32,19 +72,28 @@ export function Scene9CTA() {
         </p>
         
         <div className="flex flex-col gap-4 max-w-md mx-auto relative glass-panel p-6 rounded-2xl border border-white/10">
-          <input 
-            type="email" 
-            placeholder="Your email address" 
-            className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white focus:outline-none focus:border-brand-cyan transition-colors"
-          />
-          <a 
-            href="https://mail.google.com/mail/?view=cm&fs=1&to=webdev.team002@gmail.com&su=Project%20Inquiry%20-%20WebDev%20Solutions&body=Hello%20WebDev%20Solutions%20team%2C%0D%0A%0D%0AI%20am%20interested%20in%20your%20development%20services%20and%20would%20like%20to%20discuss%20a%20potential%20project.%0D%0A%0D%0AProject%20Type%20%28e.g.%2C%20Custom%20Web%20App%2C%20SaaS%2C%20E-Commerce%29%3A%20%0D%0ABudget%20Range%3A%20%0D%0ATimeline%3A%20%0D%0A%0D%0ABrief%20Description%3A%0D%0A%0D%0A%0D%0AThanks%2C%0D%0A%5BYour%20Name%5D"
-            target="_blank"
-            rel="noopener noreferrer"
+          <div className="relative w-full">
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                setError('')
+              }}
+              placeholder="Your email address" 
+              className={`w-full bg-black/40 border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-6 py-4 text-white focus:outline-none focus:border-brand-cyan transition-colors`}
+            />
+            {error && (
+              <p className="text-red-400 text-sm mt-2 text-left px-2">{error}</p>
+            )}
+          </div>
+          
+          <button 
+            onClick={handleGetInTouch}
             className="w-full text-center block bg-brand-blue hover:bg-brand-cyan text-white font-bold py-4 rounded-xl transition-colors shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(34,211,238,0.6)]"
           >
             Get In Touch
-          </a>
+          </button>
         </div>
       </div>
     </section>
