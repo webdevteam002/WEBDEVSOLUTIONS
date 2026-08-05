@@ -42,8 +42,18 @@ Thanks,
 [Your Name]`)
 
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=webdev.team002@gmail.com&su=${subject}&body=${body}`
+    const mailtoUrl = `mailto:webdev.team002@gmail.com?subject=${subject}&body=${body}`
     
-    window.open(gmailUrl, '_blank', 'noopener,noreferrer')
+    // Detect if the user is on a mobile device
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    
+    if (isMobile) {
+      // On mobile, mailto: is best as it securely hands off to the native mail app (like Gmail or Apple Mail)
+      window.location.href = mailtoUrl
+    } else {
+      // On desktop, force Gmail in the browser to avoid Windows Mail / Outlook issues
+      window.open(gmailUrl, '_blank', 'noopener,noreferrer')
+    }
   }
 
   return (
