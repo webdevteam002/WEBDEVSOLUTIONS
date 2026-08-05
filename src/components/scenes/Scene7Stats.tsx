@@ -5,7 +5,7 @@ import { motion, useInView } from 'framer-motion'
 import { useEffect, useState } from 'react'
 
 const stats = [
-  { label: "Projects Delivered", target: 150, suffix: "+" },
+  { label: "Projects Delivered", target: 25, suffix: "+" },
   { label: "Awards Won", target: 12, suffix: "" },
   { label: "Years Experience", target: 10, suffix: "+" },
   { label: "Client Satisfaction", target: 99, suffix: "%" },
