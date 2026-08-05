@@ -20,5 +20,18 @@ export const projectType = defineType({
       title: 'Tech Stack',
       type: 'string',
     }),
+    defineField({
+      name: 'link',
+      title: 'Live Link',
+      type: 'url',
+    }),
+    defineField({
+      name: 'image',
+      title: 'Thumbnail Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+    }),
   ],
 })

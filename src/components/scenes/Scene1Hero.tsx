@@ -1,41 +1,77 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import Image from 'next/image'
+import { motion, Variants } from 'framer-motion'
 
 export function Scene1Hero() {
+  const words1 = "We Engineer".split(" ")
+  const words2 = "Digital Experiences".split(" ")
+  const words3 = "That Scale.".split(" ")
+
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  }
+
+  const wordVariants: Variants = {
+    hidden: { y: "120%", rotate: 5, opacity: 0 },
+    visible: { 
+      y: "0%", 
+      rotate: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 100, damping: 20 }
+    }
+  }
+
   return (
-    <section className="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden">
-      <div className="absolute top-8 left-8 z-50">
-        <Image src="/logo.png" alt="WebDev Solutions Logo" width={64} height={64} className="drop-shadow-lg" />
-      </div>
+    <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-transparent">
       
-      <div className="z-10 text-center max-w-4xl px-4">
-        <motion.h1
-          className="text-5xl md:text-7xl font-bold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-brand-silver to-white"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        >
-          We Engineer Digital Experiences That Scale.
-        </motion.h1>
-        <motion.p
-          className="text-xl md:text-2xl text-brand-cyan mb-10"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        >
-          From SaaS platforms to AI-powered systems...
-        </motion.p>
-        <motion.button
-          className="glass-panel px-8 py-4 rounded-full text-lg font-medium text-white hover:bg-brand-blue/20 transition-all neon-glow"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.4, type: 'spring' }}
-        >
-          Start Your Project
-        </motion.button>
-      </div>
+      {/* Center: Kinetic Text Content */}
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="z-10 w-full flex flex-col items-center justify-center px-4 pointer-events-none"
+      >
+        <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold text-center tracking-tighter leading-[1.1] drop-shadow-2xl flex flex-col items-center">
+          
+          <div className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2">
+            {words1.map((word, i) => (
+              <span key={i} className="overflow-hidden inline-block pb-2">
+                <motion.span variants={wordVariants} className="inline-block text-white">
+                  {word}
+                </motion.span>
+              </span>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2">
+            {words2.map((word, i) => (
+              <span key={i} className="overflow-hidden inline-block pb-2">
+                <motion.span variants={wordVariants} className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">
+                  {word}
+                </motion.span>
+              </span>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2">
+            {words3.map((word, i) => (
+              <span key={i} className="overflow-hidden inline-block pb-2">
+                <motion.span variants={wordVariants} className="inline-block text-white">
+                  {word}
+                </motion.span>
+              </span>
+            ))}
+          </div>
+
+        </h1>
+      </motion.div>
     </section>
   )
 }

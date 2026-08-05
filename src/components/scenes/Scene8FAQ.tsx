@@ -16,7 +16,7 @@ export function Scene8FAQ() {
   const [openIdx, setOpenIdx] = useState<number | null>(0)
 
   return (
-    <section className="py-32 bg-black">
+    <section id="about" className="py-32 bg-black">
       <div className="max-w-3xl mx-auto px-4">
         <h2 className="text-4xl font-bold text-center mb-16">Frequently Asked Questions</h2>
         
@@ -30,7 +30,7 @@ export function Scene8FAQ() {
                 <span className="font-medium text-lg">{faq.q}</span>
                 <motion.div
                   animate={{ rotate: openIdx === idx ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ type: "spring", stiffness: 100, damping: 20 }}
                 >
                   <ChevronDown className="w-5 h-5 text-brand-cyan" />
                 </motion.div>
@@ -41,7 +41,7 @@ export function Scene8FAQ() {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    transition={{ type: "spring", stiffness: 100, damping: 20 }}
                   >
                     <div className="p-6 pt-0 text-brand-silver">
                       {faq.a}

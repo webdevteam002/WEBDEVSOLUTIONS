@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion'
 import { useRef } from 'react'
 
 export function Scene2Tension() {
@@ -10,8 +10,13 @@ export function Scene2Tension() {
     offset: ["start end", "end start"]
   })
 
-  const opacity = useTransform(scrollYProgress, [0.2, 0.5, 0.8], [0, 1, 0])
-  const y = useTransform(scrollYProgress, [0.2, 0.5, 0.8], [50, 0, -50])
+  const shouldReduceMotion = useReducedMotion()
+
+  const opacityRaw = useTransform(scrollYProgress, [0.2, 0.5, 0.8], [0, 1, 0])
+  const opacity = shouldReduceMotion ? opacityRaw : useSpring(opacityRaw, { stiffness: 100, damping: 20 })
+  
+  const yRaw = useTransform(scrollYProgress, [0.2, 0.5, 0.8], [50, 0, -50])
+  const y = shouldReduceMotion ? yRaw : useSpring(yRaw, { stiffness: 100, damping: 20 })
 
   return (
     <section ref={ref} className="relative h-screen w-full flex items-center justify-center bg-black/50 backdrop-blur-sm">
