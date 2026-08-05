@@ -9,7 +9,10 @@ if (!cached) {
 }
 
 async function connectToDatabase() {
-  if (!MONGODB_URI) {
+  // Strip any accidental quotes that might have been pasted in Vercel
+  const uri = MONGODB_URI ? MONGODB_URI.replace(/^["']|["']$/g, '') : '';
+
+  if (!uri) {
     throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
   }
 
@@ -22,11 +25,21 @@ async function connectToDatabase() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(uri, opts).then((mongoose) => {
       return mongoose;
+    }).catch(err => {
+      cached.promise = null; // reset so we can try again
+      throw err;
     });
   }
-  cached.conn = await cached.promise;
+  
+  try {
+    cached.conn = await cached.promise;
+  } catch (error) {
+    cached.promise = null;
+    throw error;
+  }
+  
   return cached.conn;
 }
 
