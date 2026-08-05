@@ -31,7 +31,7 @@ export function Scene9CTA() {
           Ready to transform your digital presence? We're taking on new projects for Q3.
         </p>
         
-        <form className="flex flex-col gap-4 max-w-md mx-auto relative glass-panel p-6 rounded-2xl border border-white/10">
+        <div className="flex flex-col gap-4 max-w-md mx-auto relative glass-panel p-6 rounded-2xl border border-white/10">
           <input 
             type="email" 
             placeholder="Your email address" 
@@ -43,7 +43,7 @@ export function Scene9CTA() {
           >
             Get In Touch
           </a>
-        </form>
+        </div>
       </div>
     </section>
   )
