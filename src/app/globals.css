@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-navy: #0A0E1A;
+  --color-brand-blue: #2563EB;
+  --color-brand-cyan: #22D3EE;
+  --color-brand-silver: #C9CDD6;
+  --color-brand-gold: #C9A24B;
+  --color-background: var(--color-brand-navy);
+  --color-foreground: var(--color-brand-silver);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0A0E1A;
+  --foreground: #C9CDD6;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Glassmorphism utilities */
+@utility glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility glass-panel {
+  background: linear-gradient(145deg, rgba(37, 99, 235, 0.05), rgba(34, 211, 238, 0.02));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(34, 211, 238, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(10, 14, 26, 0.37);
+}
+
+@utility neon-glow {
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.5), 0 0 20px rgba(34, 211, 238, 0.3);
+}
+
+.gradient-border {
+  position: relative;
+  background-clip: padding-box;
+  border: 1px solid transparent;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  z-index: -1;
+  margin: -1px;
+  border-radius: inherit;
+  background: linear-gradient(to right, var(--color-brand-blue), var(--color-brand-cyan));
+}
+
+/* Custom Scrollbar for Lenis compatibility */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
 }
