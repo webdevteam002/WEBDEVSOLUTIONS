@@ -194,3 +194,9 @@ html.lenis, html.lenis body {
     @apply font-sans;
   }
 }
+
+@media (min-width: 768px) {
+  * {
+    cursor: none !important;
+  }
+}
