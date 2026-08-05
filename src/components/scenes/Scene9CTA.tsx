@@ -28,6 +28,8 @@ export function Scene9CTA() {
 I am interested in your development services and would like to discuss a potential project.
 
 My contact email is: ${email}
+WhatsApp: 
+Any other social media: 
 
 Project Type (e.g., Custom Web App, SaaS, E-Commerce): 
 Budget Range: 
