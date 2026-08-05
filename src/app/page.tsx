@@ -10,9 +10,8 @@ import { Scene9CTA } from '@/components/scenes/Scene9CTA'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { AnimatedLogo } from '@/components/3d/AnimatedLogo'
-import { sanityFetch } from '@/sanity/lib/fetch'
-import { servicesQuery } from '@/sanity/lib/queries'
 import { ServiceType } from '@/components/scenes/Scene3Services'
+
 export interface ProjectType {
   _id: string;
   title: string;
@@ -25,14 +24,7 @@ import connectToDatabase from '@/lib/db'
 import Project from '@/models/Project'
 
 export default async function Home() {
-  let sanityServices: ServiceType[] = []
   let mongoProjects: ProjectType[] = []
-
-  try {
-    sanityServices = await sanityFetch<ServiceType[]>({ query: servicesQuery, tags: ['service'] })
-  } catch (error) {
-    console.warn('Failed to fetch from Sanity CMS (Ensure Project ID is set):', error)
-  }
 
   try {
     await connectToDatabase()
@@ -49,8 +41,7 @@ export default async function Home() {
     console.warn('Failed to fetch projects from MongoDB:', error)
   }
 
-  // Fallbacks while CMS is empty
-  const services = sanityServices.length > 0 ? sanityServices : [
+  const services: ServiceType[] = [
     { _id: '1', title: "Custom Web Application Development", order: 1, description: "We design and build custom web applications tailored to your workflows, ensuring scalable architecture and exceptional user experiences.", techStack: ["React", "Next.js", "Node.js"] },
     { _id: '2', title: "SaaS Application Development", order: 2, description: "End-to-end SaaS platforms built for multi-tenancy, high availability, and rapid scaling with automated billing integrations.", techStack: ["Stripe", "PostgreSQL", "Redis"] },
     { _id: '3', title: "Desktop Application Development", order: 3, description: "Cross-platform desktop solutions delivering native performance and deep OS integration for complex business requirements.", techStack: ["Electron", "Tauri", "Rust"] },
