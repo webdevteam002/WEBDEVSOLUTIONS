@@ -38,7 +38,9 @@ export function Scene9CTA() {
             className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white focus:outline-none focus:border-brand-cyan transition-colors"
           />
           <a 
-            href="mailto:webdev.team002@gmail.com?subject=Project%20Inquiry%20-%20WebDev%20Solutions&body=Hello%20WebDev%20Solutions%20team%2C%0D%0A%0D%0AI%20am%20interested%20in%20your%20development%20services%20and%20would%20like%20to%20discuss%20a%20potential%20project.%0D%0A%0D%0AProject%20Type%20%28e.g.%2C%20Custom%20Web%20App%2C%20SaaS%2C%20E-Commerce%29%3A%20%0D%0ABudget%20Range%3A%20%0D%0ATimeline%3A%20%0D%0A%0D%0ABrief%20Description%3A%0D%0A%0D%0A%0D%0AThanks%2C%0D%0A%5BYour%20Name%5D"
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=webdev.team002@gmail.com&su=Project%20Inquiry%20-%20WebDev%20Solutions&body=Hello%20WebDev%20Solutions%20team%2C%0D%0A%0D%0AI%20am%20interested%20in%20your%20development%20services%20and%20would%20like%20to%20discuss%20a%20potential%20project.%0D%0A%0D%0AProject%20Type%20%28e.g.%2C%20Custom%20Web%20App%2C%20SaaS%2C%20E-Commerce%29%3A%20%0D%0ABudget%20Range%3A%20%0D%0ATimeline%3A%20%0D%0A%0D%0ABrief%20Description%3A%0D%0A%0D%0A%0D%0AThanks%2C%0D%0A%5BYour%20Name%5D"
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-full text-center block bg-brand-blue hover:bg-brand-cyan text-white font-bold py-4 rounded-xl transition-colors shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(34,211,238,0.6)]"
           >
             Get In Touch
