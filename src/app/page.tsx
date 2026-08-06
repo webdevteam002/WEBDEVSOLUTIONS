@@ -43,12 +43,6 @@ export default async function Home() {
 
 
 
-  const newFeaturedProjects = [
-    { _id: 'new1', title: "Edumanageplus.org – SaaS Education Management Platform", category: "SaaS Platform", tech: "Next.js, PostgreSQL", link: null, imageUrl: null },
-    { _id: 'new2', title: "Full-Stack E-Commerce Website", category: "E-Commerce", tech: "Next.js, MongoDB", link: null, imageUrl: null },
-    { _id: 'new3', title: "Shopify E-Commerce Website", category: "E-Commerce", tech: "Shopify", link: null, imageUrl: null },
-  ]
-
   const fallbackProjects = [
     { _id: '1', title: "Hamdard Enterprises", category: "Web App", tech: "Next.js, Node.js", link: "https://hamdardenterprises.vercel.app/", imageUrl: "/hamdard.png" },
     { _id: '2', title: "Interactive 3D Human Body Explorer", category: "3D & Interactive", tech: "WebGL, Three.js", link: null, imageUrl: null },
@@ -57,7 +51,7 @@ export default async function Home() {
     { _id: '5', title: "Lost & Found Campus Management System", category: "Database Systems", tech: "PHP, MySQL", link: null, imageUrl: null },
   ];
 
-  const projects = [...newFeaturedProjects, ...(mongoProjects.length > 0 ? mongoProjects : fallbackProjects)];
+  const projects = mongoProjects.length > 0 ? mongoProjects : fallbackProjects;
   return (
     <main className="flex min-h-screen flex-col overflow-hidden relative">
       <Navbar />
