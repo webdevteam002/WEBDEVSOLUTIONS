@@ -73,7 +73,7 @@ export function Scene1Hero() {
       ctx.scale(dpr, dpr)
     }
 
-    // object-fit: cover math
+    // object-fit: contain math
     const imgRatio = img.naturalWidth / img.naturalHeight
     const canvasRatio = rect.width / rect.height
     let drawWidth = rect.width
@@ -82,11 +82,11 @@ export function Scene1Hero() {
     let offsetY = 0
 
     if (imgRatio > canvasRatio) {
-      drawWidth = rect.height * imgRatio
-      offsetX = (rect.width - drawWidth) / 2
-    } else {
       drawHeight = rect.width / imgRatio
       offsetY = (rect.height - drawHeight) / 2
+    } else {
+      drawWidth = rect.height * imgRatio
+      offsetX = (rect.width - drawWidth) / 2
     }
 
     ctx.clearRect(0, 0, rect.width, rect.height)
@@ -130,7 +130,7 @@ export function Scene1Hero() {
       {/* Sticky canvas — NOT absolute */}
       <canvas 
         ref={canvasRef}
-        className="sticky top-0 left-0 w-full h-screen object-cover z-0 opacity-30"
+        className="sticky top-0 left-0 w-full h-screen object-cover z-0 opacity-100"
       />
 
       {/* Fallback gradient shown until frames load */}
