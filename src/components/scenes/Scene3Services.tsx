@@ -1,7 +1,15 @@
 'use client'
 
 import { useRef, MouseEvent, useState, useEffect } from 'react'
-import { motion, useMotionTemplate, useMotionValue, useScroll, useTransform, useReducedMotion } from 'framer-motion'
+import { motion, useMotionTemplate, useMotionValue } from 'framer-motion'
+import { Shard } from '@/components/ui/Shard'
+import gsap from 'gsap'
+import ScrollTrigger from 'gsap/ScrollTrigger'
+import { useGSAP } from '@gsap/react'
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger, useGSAP)
+}
 
 export interface ServiceType {
   id: string;
@@ -46,14 +54,12 @@ export function ServiceCardItem({ service, index, isMobile }: { service: Service
   const spotlight = useMotionTemplate`radial-gradient(400px circle at ${mouseX}px ${mouseY}px, rgba(34, 211, 238, 0.1), transparent 40%)`
 
   return (
-    <motion.div
+    <div
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      whileHover={!isMobile ? { y: -4 } : {}}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="relative overflow-hidden bg-[#0A0E1A]/80 backdrop-blur-md rounded-2xl border border-white/5 flex flex-col justify-between h-full p-6 lg:p-8 group cursor-pointer shrink-0 w-[320px] md:w-[400px]"
+      className="relative overflow-hidden bg-[#0A0E1A]/80 backdrop-blur-md rounded-2xl border border-white/5 flex flex-col justify-between h-full p-6 lg:p-8 group cursor-pointer w-full md:w-[400px] transition-colors hover:border-cyan-500/30 min-h-[220px]"
     >
       {!isMobile && (
         <motion.div
@@ -64,7 +70,7 @@ export function ServiceCardItem({ service, index, isMobile }: { service: Service
 
       <div className="relative z-10 flex flex-col h-full justify-between">
         <div>
-          <div className="flex justify-between items-start mb-6">
+          <div className="flex justify-between items-start mb-4">
             <span className="text-[#22D3EE] font-mono text-sm block">
               {(index + 1).toString().padStart(2, '0')}
             </span>
@@ -74,130 +80,204 @@ export function ServiceCardItem({ service, index, isMobile }: { service: Service
               </svg>
             </div>
           </div>
-          <h3 className="text-xl md:text-2xl font-bold text-white mb-4">
+          <h3 className="text-xl md:text-2xl font-bold text-white mb-2">
             {service.title}
           </h3>
-          <motion.p
-            initial={{ opacity: 0.7 }}
-            animate={{ opacity: isHovered || isMobile ? 1 : 0.7 }}
-            className="text-[#C9CDD6] text-sm leading-relaxed"
-          >
+          <p className="text-[#C9CDD6] text-sm leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all duration-300 opacity-70 group-hover:opacity-100">
             {service.description}
-          </motion.p>
+          </p>
         </div>
-        <div className="flex flex-wrap gap-2 mt-6">
+        <div className="flex flex-wrap gap-2 mt-4">
           {service.techStack.map(tech => (
-            <motion.span 
+            <span 
               key={tech} 
               className={`px-3 py-1 text-xs bg-white/5 border rounded-full transition-colors duration-300 ${
                 isHovered || isMobile ? 'border-cyan-500/50 text-white' : 'border-white/10 text-[#8B949E]'
               }`}
             >
               {tech}
-            </motion.span>
+            </span>
           ))}
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
-export function Scene3Services({ services: _ignored }: { services?: any }) {
-  const containerRef = useRef<HTMLElement>(null)
-  const shouldReduceMotion = useReducedMotion()
-  
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  })
-
-  const [isMobile, setIsMobile] = useState(false)
-  
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  // Cluster 1 (Build) - 0 to 0.25
-  const c1x = useTransform(scrollYProgress, [0, 0.05, 0.2, 0.25], ["50vw", "0vw", "0vw", "-100vw"])
-  const c1op = useTransform(scrollYProgress, [0, 0.05, 0.2, 0.25], [0, 1, 1, 0])
-  
-  // Cluster 2 (Integrate) - 0.25 to 0.5
-  const c2x = useTransform(scrollYProgress, [0.25, 0.3, 0.45, 0.5], ["50vw", "0vw", "0vw", "-100vw"])
-  const c2op = useTransform(scrollYProgress, [0.25, 0.3, 0.45, 0.5], [0, 1, 1, 0])
-  
-  // Cluster 3 (Sell) - 0.5 to 0.75
-  const c3x = useTransform(scrollYProgress, [0.5, 0.55, 0.7, 0.75], ["50vw", "0vw", "0vw", "-100vw"])
-  const c3op = useTransform(scrollYProgress, [0.5, 0.55, 0.7, 0.75], [0, 1, 1, 0])
-  
-  // Cluster 4 (Establish) - 0.75 to 1
-  const c4x = useTransform(scrollYProgress, [0.75, 0.8, 0.95, 1], ["50vw", "0vw", "0vw", "-100vw"]) // Continues left to hand-off into Process
-  const c4op = useTransform(scrollYProgress, [0.75, 0.8, 0.95, 1], [0, 1, 1, 0])
-
-  const clustersAnim = [
-    { x: c1x, op: c1op },
-    { x: c2x, op: c2op },
-    { x: c3x, op: c3op },
-    { x: c4x, op: c4op },
-  ]
-
-  if (isMobile || shouldReduceMotion) {
-    return (
-      <section id="services" className="w-full bg-[#0A0E1A] py-24 px-4 overflow-x-hidden">
-        <div className="max-w-7xl mx-auto space-y-16 pl-8">
-          {clusters.map((cluster, cIdx) => (
-            <div key={cluster.id} className="snap-start pt-12">
-              {cIdx === 0 ? (
-                <motion.h2 layoutId="we-build-differently" className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue mb-8">
-                  {cluster.name}
-                </motion.h2>
-              ) : (
-                <h2 className="text-4xl font-bold text-white mb-8">{cluster.name}</h2>
-              )}
-              <div className="flex flex-col gap-6">
-                {cluster.services.map((service, idx) => (
-                  <ServiceCardItem key={service.id} service={service} index={idx} isMobile={true} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    )
-  }
-
+function MobileServices() {
   return (
-    <section id="services" ref={containerRef} className="relative w-full h-[600vh] bg-[#0A0E1A]">
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center pl-32">
+    <section id="services" className="w-full bg-[#0A0E1A]">
+      <div className="w-full flex flex-col pt-24 pb-24">
         {clusters.map((cluster, cIdx) => (
-          <motion.div 
-            key={cluster.id}
-            className="absolute inset-0 pl-8 md:pl-48 pr-4 w-full max-w-7xl mx-auto flex flex-col justify-center"
-            style={{ x: clustersAnim[cIdx].x, opacity: clustersAnim[cIdx].op }}
-          >
+          <div key={cluster.id} className="min-h-screen w-full flex flex-col justify-center px-6 relative snap-start mb-24 last:mb-0">
             {cIdx === 0 ? (
-              <motion.h2 
-                layoutId="we-build-differently"
-                className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue mb-12"
-              >
+              <motion.h2 layoutId="we-build-differently" className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue mb-12">
                 {cluster.name}
               </motion.h2>
             ) : (
-              <h2 className="text-6xl md:text-8xl font-bold text-white mb-12">
-                {cluster.name}
-              </h2>
+              <h2 className="text-6xl font-bold text-white mb-12">{cluster.name}</h2>
             )}
-            
-            <div className="flex gap-6 overflow-visible pb-12 w-full pr-32">
+            <div className="flex flex-col gap-6 relative z-10 w-full">
               {cluster.services.map((service, idx) => (
-                <ServiceCardItem key={service.id} service={service} index={idx} isMobile={false} />
+                <ServiceCardItem key={service.id} service={service} index={idx} isMobile={true} />
               ))}
             </div>
-          </motion.div>
+            {cIdx === 1 && (
+              <div className="absolute top-[30%] right-[-10%] opacity-20 pointer-events-none z-0 overflow-hidden">
+                <Shard shardId={3} className="w-64 h-64 blur-[1px]" />
+              </div>
+            )}
+          </div>
         ))}
       </div>
     </section>
   )
+}
+
+function DesktopServices() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLDivElement>(null)
+  
+  useGSAP(() => {
+    // Total pin scroll distance: 400vh (4 clusters * 100vh each)
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: triggerRef.current,
+        start: "top top",
+        end: "+=400%",
+        scrub: 1,
+        pin: true,
+        anticipatePin: 1
+      }
+    });
+
+    clusters.forEach((cluster, idx) => {
+      const clusterEl = document.querySelector(`.cluster-${idx}`);
+      const cards = gsap.utils.toArray(`.cluster-${idx} .service-card`);
+      const isLast = idx === clusters.length - 1;
+
+      // Inner Animation (Fanning out the cards) - Takes 60% of this cluster's 100vh block
+      tl.to(cards, {
+        y: (i) => (i - (cards.length - 1) / 2) * 120,
+        x: (i) => Math.abs(i - (cards.length - 1) / 2) * 20,
+        rotateZ: (i) => (i - (cards.length - 1) / 2) * 4,
+        scale: 1,
+        stagger: 0.05,
+        ease: "power2.out",
+        duration: 0.6
+      });
+
+      // Horizontal Swap Out - Takes 40% of this cluster's 100vh block
+      if (!isLast) {
+        const nextClusterEl = document.querySelector(`.cluster-${idx + 1}`);
+        
+        // Active cluster slides out left
+        tl.to(clusterEl, {
+          x: "-100vw",
+          opacity: 0,
+          ease: "power2.inOut",
+          duration: 0.4
+        }, "swap"); 
+        
+        // Next cluster slides in from right
+        tl.fromTo(nextClusterEl, {
+          x: "100vw",
+          opacity: 0
+        }, {
+          x: "0vw",
+          opacity: 1,
+          ease: "power2.inOut",
+          duration: 0.4
+        }, "swap");
+      }
+    });
+
+    // Spin shard continuously
+    gsap.to(".shard-fragment", {
+      rotation: 360,
+      duration: 30,
+      repeat: -1,
+      ease: "linear"
+    });
+
+  }, { scope: containerRef });
+
+  return (
+    <section id="services" ref={triggerRef} className="h-screen w-full bg-[#0A0E1A] overflow-hidden relative">
+      <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
+        
+        {/* Shard Assembly Motif */}
+        <div className="shard-fragment absolute top-[20%] left-[40%] opacity-20 pointer-events-none z-0">
+           <Shard shardId={3} className="w-[800px] h-[800px] blur-[3px]" />
+        </div>
+
+        {clusters.map((cluster, cIdx) => (
+          <div 
+            key={cluster.id} 
+            className={`cluster-${cIdx} absolute inset-0 w-full h-full flex items-center px-8 md:pl-48 md:pr-12 max-w-7xl mx-auto z-10`}
+            style={{ 
+               transform: cIdx === 0 ? "translateX(0)" : "translateX(100vw)",
+               opacity: cIdx === 0 ? 1 : 0
+            }}
+          >
+            {/* Left 1/3: Premium Editorial Title */}
+            <div className="w-1/3 flex flex-col justify-center h-full pr-8">
+              {cIdx === 0 ? (
+                <motion.h2 
+                  layoutId="we-build-differently"
+                  className="text-[80px] lg:text-[120px] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue leading-none"
+                >
+                  {cluster.name}
+                </motion.h2>
+              ) : (
+                <h2 className="text-[80px] lg:text-[120px] font-bold tracking-tight text-white leading-none">
+                  {cluster.name}
+                </h2>
+              )}
+            </div>
+
+            {/* Right 2/3: Tactile Card Group */}
+            <div className="w-2/3 h-full relative flex items-center justify-center">
+              <div className="relative w-full max-w-[400px] flex justify-center items-center h-full">
+                {cluster.services.map((service, idx) => (
+                  <div 
+                    key={service.id} 
+                    className="service-card absolute w-full"
+                    style={{ 
+                      // Tight initial stack (like a deck of cards)
+                      transform: `translateY(${idx * 12}px) translateX(${idx * 4}px) rotateZ(${idx * 0.5}deg) scale(${1 - idx * 0.05})`,
+                      zIndex: 10 - idx
+                    }}
+                  >
+                    <ServiceCardItem service={service} index={idx} isMobile={false} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+export function Scene3Services(props: any) {
+  const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024); // use lg breakpoint for horizontal spread
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (!mounted) return <div className="h-screen bg-[#0A0E1A]" />;
+
+  if (isMobile) {
+    return <MobileServices />
+  }
+
+  return <DesktopServices />
 }
