@@ -7,7 +7,7 @@ import { Shard } from '@/components/ui/Shard'
 export function Scene1Hero() {
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -55,71 +55,22 @@ export function Scene1Hero() {
     }
   }, [])
 
-  // Draw a specific frame onto the canvas
-  const drawFrame = (index: number) => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const img = images[index]
-    if (!img || !img.complete || img.naturalWidth === 0) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const dpr = window.devicePixelRatio || 1
-    const rect = canvas.getBoundingClientRect()
-    
-    if (canvas.width !== Math.round(rect.width * dpr) || canvas.height !== Math.round(rect.height * dpr)) {
-      canvas.width = Math.round(rect.width * dpr)
-      canvas.height = Math.round(rect.height * dpr)
-      ctx.scale(dpr, dpr)
-    }
-
-    // object-fit: cover math
-    const imgRatio = img.naturalWidth / img.naturalHeight
-    const canvasRatio = rect.width / rect.height
-    let drawWidth = rect.width
-    let drawHeight = rect.height
-    let offsetX = 0
-    let offsetY = 0
-
-    if (imgRatio > canvasRatio) {
-      drawWidth = rect.height * imgRatio
-      offsetX = (rect.width - drawWidth) / 2
-    } else {
-      drawHeight = rect.width / imgRatio
-      offsetY = (rect.height - drawHeight) / 2
-    }
-
-    ctx.clearRect(0, 0, rect.width, rect.height)
-    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
-  }
-
   // Initial render when loaded
   useEffect(() => {
-    if (isLoaded && images.length > 0) {
+    if (isLoaded && images.length > 0 && imgRef.current) {
       lastDrawnIndex.current = 0
-      requestAnimationFrame(() => drawFrame(0))
+      imgRef.current.src = images[0].src
     }
-  }, [isLoaded, images])
-
-  // Resize handler
-  useEffect(() => {
-    const handleResize = () => {
-      if (isLoaded && lastDrawnIndex.current >= 0) {
-        requestAnimationFrame(() => drawFrame(lastDrawnIndex.current))
-      }
-    }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
   }, [isLoaded, images])
 
   // Scroll-scrub: useMotionValueEvent to map scroll progress to frame index
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (!isLoaded || images.length === 0) return
+    if (!isLoaded || images.length === 0 || !imgRef.current) return
     const frameIndex = Math.min(191, Math.max(0, Math.round(latest * 191)))
 
     if (frameIndex !== lastDrawnIndex.current) {
       lastDrawnIndex.current = frameIndex
-      requestAnimationFrame(() => drawFrame(frameIndex))
+      imgRef.current.src = images[frameIndex].src
     }
   })
 
@@ -127,10 +78,11 @@ export function Scene1Hero() {
   const chevronOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
   return (
     <div ref={containerRef} className="relative w-full h-[400vh]">
-      {/* Sticky canvas — NOT absolute */}
-      <canvas 
-        ref={canvasRef}
-        className="sticky top-0 left-0 w-full h-screen object-cover z-0 opacity-100"
+      {/* Native img tag for perfect object-fit cover and native hardware acceleration */}
+      <img 
+        ref={imgRef}
+        className="sticky top-0 left-0 w-full h-screen object-cover z-0"
+        alt="Cinematic Scroll Sequence"
       />
 
       {/* Fallback gradient shown until frames load */}
