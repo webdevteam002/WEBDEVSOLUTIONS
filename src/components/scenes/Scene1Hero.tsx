@@ -83,7 +83,7 @@ export function Scene1Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
-            className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg"
+            className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-lg"
           >
             We Engineer <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">
@@ -95,7 +95,7 @@ export function Scene1Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="text-xl text-[#C9CDD6] mb-8 max-w-lg"
+            className="text-lg text-[#C9CDD6] mb-8 max-w-lg"
           >
             A premium Web3 & Full-Stack Agency with 2+ Years Experience delivering cinematic websites and scalable applications.
           </motion.p>
