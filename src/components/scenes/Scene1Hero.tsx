@@ -81,7 +81,7 @@ export function Scene1Hero() {
       {/* Native img tag for perfect object-fit cover and native hardware acceleration */}
       <img 
         ref={imgRef}
-        className="sticky top-0 left-0 w-full h-screen object-cover z-0"
+        className="sticky top-0 left-0 w-full h-screen object-cover z-0 pt-24"
         alt="Cinematic Scroll Sequence"
       />
 
