@@ -5,9 +5,6 @@ import { useEffect, useRef, useState } from 'react'
 import { Shard } from '@/components/ui/Shard'
 
 export function Scene1Hero() {
-  const words1 = "We Engineer".split(" ")
-  const words2 = "Digital Experiences".split(" ")
-  const words3 = "That Scale.".split(" ")
 
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -126,35 +123,10 @@ export function Scene1Hero() {
     }
   })
 
-  // Headline divergences
-  const line1X = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"])
-  const line1Y = useTransform(scrollYProgress, [0, 1], ["0%", "-100%"])
-  const line1Opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
-  
-  const line2Scale = useTransform(scrollYProgress, [0, 1], [1, 3])
-  const line2Opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
-
-  const line3X = useTransform(scrollYProgress, [0, 1], ["0%", "20%"])
-  const line3Y = useTransform(scrollYProgress, [0, 1], ["0%", "150%"])
-  
-  const mobileDriftY = useTransform(scrollYProgress, [0, 1], ["0%", "-100%"])
-  const mobileOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
-
   const shard1Y = useTransform(scrollYProgress, [0, 1], [0, 300])
   const chevronOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
-
-  const wordVariants = {
-    hidden: { y: "120%", rotate: 5, opacity: 0 },
-    visible: { 
-      y: "0%", 
-      rotate: 0,
-      opacity: 1,
-      transition: { type: "spring" as const, stiffness: 100, damping: 20 }
-    }
-  }
-
   return (
-    <div ref={containerRef} className="relative w-full h-[200vh]">
+    <div ref={containerRef} className="relative w-full h-[400vh]">
       {/* Sticky canvas — NOT absolute */}
       <canvas 
         ref={canvasRef}
@@ -178,58 +150,7 @@ export function Scene1Hero() {
           </motion.div>
         )}
 
-        {/* Center: Kinetic Text Content */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
-          <motion.div 
-            initial="hidden"
-            animate="visible"
-            transition={{ staggerChildren: 0.1, delayChildren: 0.2 }}
-            className="w-full flex flex-col items-center justify-center"
-          >
-            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-center tracking-tighter leading-[1.1] drop-shadow-2xl flex flex-col items-center">
-              
-              <motion.div 
-                className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2"
-                style={!isMobile && !shouldReduceMotion ? { x: line1X, y: line1Y, opacity: line1Opacity } : { y: mobileDriftY, opacity: mobileOpacity }}
-              >
-                {words1.map((word, i) => (
-                  <span key={i} className="overflow-hidden inline-block pb-2">
-                    <motion.span variants={wordVariants} className="inline-block text-white">
-                      {word}
-                    </motion.span>
-                  </span>
-                ))}
-              </motion.div>
 
-              <motion.div 
-                className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2 origin-center"
-                style={!isMobile && !shouldReduceMotion ? { scale: line2Scale, opacity: line2Opacity } : { y: mobileDriftY, opacity: mobileOpacity }}
-              >
-                {words2.map((word, i) => (
-                  <span key={i} className="overflow-hidden inline-block pb-2">
-                    <motion.span variants={wordVariants} className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">
-                      {word}
-                    </motion.span>
-                  </span>
-                ))}
-              </motion.div>
-
-              <motion.div 
-                className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2"
-                style={!isMobile && !shouldReduceMotion ? { x: line3X, y: line3Y } : { y: mobileDriftY, opacity: mobileOpacity }}
-              >
-                {words3.map((word, i) => (
-                  <span key={i} className="overflow-hidden inline-block pb-2">
-                    <motion.span variants={wordVariants} className="inline-block text-white">
-                      {word}
-                    </motion.span>
-                  </span>
-                ))}
-              </motion.div>
-
-            </h1>
-          </motion.div>
-        </div>
         
         {/* Scroll-cue chevron */}
         <motion.div 
