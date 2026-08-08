@@ -145,23 +145,23 @@ export function Scene5TechStack() {
         className="flex flex-col justify-center"
         style={{ gap, opacity }}
       >
-        {/* Row 1: Moves Left */}
+        {/* Row 1: Moves Right (left-to-right) */}
         {shouldReduceMotion ? (
            <div className="flex gap-8 overflow-hidden text-white/30 text-4xl font-bold px-4">{techs.join(" • ")}</div>
         ) : (
            <MarqueeRow 
              items={techs} 
-             direction={-1} 
+             direction={1} 
              baseVelocity={5} 
              scrollVelocity={smoothVelocity} 
            />
         )}
 
-        {/* Row 2: Moves Right (Hidden on mobile) */}
+        {/* Row 2: Moves Left (right-to-left, Hidden on mobile) */}
         {!isMobile && !shouldReduceMotion && (
           <MarqueeRow 
             items={techs.slice().reverse()} 
-            direction={1} 
+            direction={-1} 
             baseVelocity={7} // slightly different base speed
             scrollVelocity={smoothVelocity} 
           />
