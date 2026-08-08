@@ -73,7 +73,7 @@ export function Scene1Hero() {
       ctx.scale(dpr, dpr)
     }
 
-    // object-fit: contain math
+    // object-fit: cover math
     const imgRatio = img.naturalWidth / img.naturalHeight
     const canvasRatio = rect.width / rect.height
     let drawWidth = rect.width
@@ -82,11 +82,11 @@ export function Scene1Hero() {
     let offsetY = 0
 
     if (imgRatio > canvasRatio) {
-      drawHeight = rect.width / imgRatio
-      offsetY = (rect.height - drawHeight) / 2
-    } else {
       drawWidth = rect.height * imgRatio
       offsetX = (rect.width - drawWidth) / 2
+    } else {
+      drawHeight = rect.width / imgRatio
+      offsetY = (rect.height - drawHeight) / 2
     }
 
     ctx.clearRect(0, 0, rect.width, rect.height)
