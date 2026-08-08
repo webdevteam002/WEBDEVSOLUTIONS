@@ -51,16 +51,28 @@ export function Navbar() {
         </nav>
 
         {/* Right Column: Call to Action */}
-        <div className="flex items-center">
-          <Link href="/admin/login">
+        <div className="flex items-center gap-4">
+          <Link href="/admin/login" aria-label="Admin Login">
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="text-[#C9CDD6] hover:text-white transition-colors"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </motion.div>
+          </Link>
+          <a href="#contact">
             <motion.div
               whileHover={{ boxShadow: "0px 0px 15px rgba(34, 211, 238, 0.5)" }}
               whileTap={{ scale: 0.95 }}
               className="px-5 py-2 text-sm rounded-full bg-[#2563EB] text-white hover:scale-105 transition-transform cursor-pointer"
             >
-              Admin
+              Start a Project
             </motion.div>
-          </Link>
+          </a>
         </div>
       </div>
     </motion.header>

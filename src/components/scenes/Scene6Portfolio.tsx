@@ -1,8 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
+
+// Disable SSR for GSAP to avoid hydration mismatches
+const PortfolioGSAP = dynamic(() => import('./PortfolioGSAP'), { ssr: false })
 
 export interface ProjectData {
   id: string;
@@ -10,164 +13,82 @@ export interface ProjectData {
   category: string;
   description: string;
   tech: string[];
+  link?: string | null;
+  imageFallback?: string;
 }
 
 export const portfolioData: ProjectData[] = [
-  {
-    id: '1',
-    title: "Hamdard Enterprises Portal",
-    category: "Web App",
-    description: "Engineered and deployed a production-grade enterprise web application with fully fluid mobile layout and sub-second page performance. Configured automated CI/CD deployment on Vercel with custom domain and SSL.",
-    tech: ["Next.js", "React", "Tailwind CSS", "Vercel", "Node.js"]
-  },
-  {
-    id: '2',
-    title: "Interactive 3D Human Body Explorer",
-    category: "3D & Interactive",
-    description: "Architected an interactive 3D anatomy visualization tool with real-time rotation, zoom, and structure inspection. Optimized 3D geometry rendering for a steady 60 FPS across desktop and mobile browsers.",
-    tech: ["JavaScript (ES6+)", "WebGL", "Three.js", "HTML5", "CSS3"]
-  },
-  {
-    id: '3',
-    title: "Ferrari Digital Experience",
-    category: "Frontend UI",
-    description: "Designed a high-end vehicle showcase inspired by minimalist Apple and Ferrari digital aesthetics. Built smooth micro-interactions, scroll-driven visual triggers, and high-DPI asset presentation.",
-    tech: ["Next.js", "React", "Framer Motion", "Modern CSS3"]
-  },
-  {
-    id: '4',
-    title: "Neurosurgeon Medical Portfolio",
-    category: "Healthcare Tech",
-    description: "Developed a custom healthcare web application with dynamic patient consultation forms. Implemented secure RESTful API endpoints for appointment inquiries and client communications.",
-    tech: ["React", "Node.js", "Express", "MongoDB", "Tailwind CSS"]
-  },
-  {
-    id: '5',
-    title: "Campus Management System",
-    category: "Database Systems",
-    description: "Built a centralized campus registry with secure authentication, role-based access, and CRUD operations. Structured relational schemas with optimized indexing for multi-parameter search.",
-    tech: ["PHP", "MySQL", "JavaScript", "HTML5", "CSS3"]
-  }
+  { id: '1', title: "Hamdard Enterprises Portal", category: "Web App", description: "Engineered and deployed a production-grade enterprise web application...", tech: ["Next.js", "React", "Node.js"], link: "https://hamdardenterprises.vercel.app/", imageFallback: "/hamdard.png" },
+  { id: '2', title: "Interactive 3D Human Body Explorer", category: "3D & Interactive", description: "Architected an interactive 3D anatomy visualization tool...", tech: ["WebGL", "Three.js"], link: null },
+  { id: '3', title: "Ferrari Digital Experience", category: "Frontend UI", description: "Designed a high-end vehicle showcase inspired by minimalist aesthetics...", tech: ["Framer Motion", "CSS3"], link: null },
+  { id: '4', title: "Neurosurgeon Medical Portfolio", category: "Healthcare Tech", description: "Developed a custom healthcare web application...", tech: ["React", "Node.js"], link: null },
+  { id: '5', title: "Campus Management System", category: "Database Systems", description: "Built a centralized campus registry...", tech: ["PHP", "MySQL"], link: null }
 ]
 
-export function ProjectCard({ project }: { project: ProjectData }) {
-  const [isHovered, setIsHovered] = useState(false)
+export function Scene6Portfolio({ projects }: { projects?: ProjectData[] }) {
+  const data = projects || portfolioData
+  const [isMobile, setIsMobile] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
+  useEffect(() => {
+    setMounted(true)
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  if (!mounted) return null
+
+  // Desktop uses the dynamically imported GSAP version
+  if (!isMobile) {
+    return <PortfolioGSAP projects={data} />
+  }
+
+  // Mobile uses native CSS scroll-snap (straight crossfade on snap conceptually, handled via snapping full-width cards)
   return (
-    <div 
-      className="relative w-full h-[400px]"
-      style={{ perspective: 1000 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <motion.div
-        className="w-full h-full relative"
-        style={{ transformStyle: "preserve-3d" }}
-        animate={{ rotateY: isHovered ? 180 : 0 }}
-        transition={{ type: "spring", stiffness: 260, damping: 20 }}
-      >
-        {/* FRONT FACE */}
-        <div 
-          className="absolute inset-0 w-full h-full rounded-2xl overflow-hidden bg-brand-navy border border-white/5"
-          style={{ backfaceVisibility: "hidden" }}
-        >
-          {/* Typography-driven design: generic subtle noise/gradient using Image as requested */}
-          <div className="absolute inset-0 z-0 opacity-20 mix-blend-overlay">
-             <Image src="/logo-parts/pixels.webp" alt="Background" fill className="object-cover" />
-          </div>
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A] via-[#0A0E1A]/40 to-transparent z-10" />
-          
-          <div className="absolute top-6 right-6 z-20 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-            <span className="text-xs text-white font-medium">{project.category}</span>
-          </div>
-          
-          <div className="absolute bottom-6 left-6 right-6 z-20">
-            <h3 className="text-2xl font-bold text-white">{project.title}</h3>
-          </div>
-        </div>
-
-        {/* BACK FACE */}
-        <div 
-          className="absolute inset-0 w-full h-full rounded-2xl bg-[#0A0E1A] border border-[#22D3EE]/30 overflow-hidden"
-          style={{ 
-            backfaceVisibility: "hidden", 
-            transform: "rotateY(180deg)" 
-          }}
-        >
-          <div className="flex flex-col justify-between p-8 h-full">
-            <div>
-              <div className="flex justify-between items-start mb-6">
-                <h3 className="text-xl font-bold text-white leading-tight pr-4">{project.title}</h3>
-                <span className="text-xs text-[#22D3EE] font-mono whitespace-nowrap mt-1">{project.category}</span>
-              </div>
-              <p className="text-[#C9CDD6] text-sm leading-relaxed overflow-y-auto max-h-[160px] pr-2 custom-scrollbar">
-                {project.description}
-              </p>
+    <section id="projects" className="bg-[#0A0E1A] py-24 border-y border-white/5">
+      <div className="px-6 mb-8">
+        <h2 className="text-4xl font-bold text-white mb-4">Selected Work</h2>
+      </div>
+      
+      <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar w-full px-6 gap-6 pb-8">
+        {data.map((project) => (
+          <div key={project.id} className="w-[85vw] shrink-0 snap-center flex flex-col gap-6">
+            <div className="w-full h-[40vh] rounded-2xl overflow-hidden relative border border-white/10">
+              {project.imageFallback ? (
+                <Image src={project.imageFallback} alt={project.title} fill className="object-cover" />
+              ) : (
+                <div className="w-full h-full bg-brand-navy flex items-center justify-center">
+                  <span className="text-white/20 font-mono text-xs">Asset Coming Soon</span>
+                </div>
+              )}
             </div>
             
-            <div className="flex flex-wrap gap-2 mt-4">
-              {project.tech.map((t, i) => (
-                <span key={i} className="px-2 py-1 text-xs text-[#8B949E] bg-white/5 border border-white/10 rounded-full">
-                  {t}
-                </span>
-              ))}
+            <div className="flex flex-col gap-4">
+              <span className="text-brand-cyan font-mono text-xs">{project.category}</span>
+              <h3 className="text-2xl font-bold text-white leading-tight">{project.title}</h3>
+              <p className="text-[#C9CDD6] text-sm leading-relaxed">{project.description}</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {project.tech.map(t => (
+                   <span key={t} className="px-2 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] text-white/50">{t}</span>
+                ))}
+              </div>
+              
+              <div className="mt-4">
+                {project.link ? (
+                  <a href={project.link} target="_blank" rel="noreferrer" className="inline-block px-6 py-2 bg-brand-cyan text-black font-bold rounded-full text-sm">
+                    View Project
+                  </a>
+                ) : (
+                  <span className="inline-block px-6 py-2 bg-white/5 border border-white/10 text-white/50 font-bold rounded-full text-sm">
+                    Case Study Coming Soon
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </motion.div>
-    </div>
-  )
-}
-
-// Accept generic props to maintain compatibility with page.tsx
-export function Scene6Portfolio({ projects: _ignored }: { projects?: any }) {
-  const [activeCategory, setActiveCategory] = useState("All")
-  
-  const categories = ["All", ...Array.from(new Set(portfolioData.map(p => p.category)))]
-
-  const filteredProjects = activeCategory === "All" 
-    ? portfolioData 
-    : portfolioData.filter(p => p.category === activeCategory)
-
-  return (
-    <section id="projects" className="py-32 bg-black min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 md:px-12 lg:px-24">
-        <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tight mb-16 drop-shadow-lg">
-          Selected Work
-        </h2>
-        
-        {/* Filter Chips */}
-        <div className="flex flex-wrap gap-4 mb-16">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`relative px-6 py-2 rounded-full text-sm font-medium transition-colors z-10 ${
-                activeCategory === cat ? 'text-black bg-brand-cyan' : 'text-brand-silver hover:text-white border border-white/10'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project) => (
-              <motion.div
-                key={project.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
-              >
-                <ProjectCard project={project} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+        ))}
       </div>
     </section>
   )

@@ -1,8 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { useState } from 'react'
+import { Shard } from '@/components/ui/Shard'
 
 export function Scene9CTA() {
   const [email, setEmail] = useState('')
@@ -44,68 +44,72 @@ Thanks,
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=webdev.team002@gmail.com&su=${subject}&body=${body}`
     const mailtoUrl = `mailto:webdev.team002@gmail.com?subject=${subject}&body=${body}`
     
-    // Detect if the user is on a mobile device
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
     
     if (isMobile) {
-      // On mobile, mailto: is best as it securely hands off to the native mail app (like Gmail or Apple Mail)
       window.location.href = mailtoUrl
     } else {
-      // On desktop, force Gmail in the browser to avoid Windows Mail / Outlook issues
       window.open(gmailUrl, '_blank', 'noopener,noreferrer')
     }
   }
 
   return (
-    <section id="contact" className="relative h-screen w-full flex items-center justify-center bg-brand-navy overflow-hidden">
-      {/* PNG Logo Background */}
-      <motion.div
-        initial={{ y: 0 }}
-        animate={{ y: -15 }}
-        transition={{ type: "spring", stiffness: 100, damping: 20, repeat: Infinity, repeatType: "reverse" }}
-        className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none scale-150"
-      >
-        <div className="relative w-[300px] h-[300px] md:w-[600px] md:h-[600px]">
-          <Image 
-            src="/logo.png" 
-            alt="WebDev Solutions" 
-            fill 
-            className="object-contain drop-shadow-[0_0_30px_rgba(34,211,238,0.5)]" 
-          />
-        </div>
-      </motion.div>
+    <section id="contact" className="relative h-screen w-full flex items-center bg-[#0A0E1A] overflow-hidden">
+      
+      {/* Centralized completed Hexagon Mark (all 6 shards converged) */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+        <motion.div 
+          className="relative w-96 h-96 opacity-30 md:opacity-50"
+          initial={{ scale: 0.8, filter: 'blur(10px)' }}
+          whileInView={{ scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          viewport={{ once: true }}
+        >
+          <Shard shardId={1} className="absolute inset-0 w-full h-full" />
+          <Shard shardId={2} className="absolute inset-0 w-full h-full" />
+          <Shard shardId={3} className="absolute inset-0 w-full h-full" />
+          <Shard shardId={4} className="absolute inset-0 w-full h-full" />
+          <Shard shardId={5} className="absolute inset-0 w-full h-full" />
+          <Shard shardId={6} className="absolute inset-0 w-full h-full" />
+        </motion.div>
+      </div>
 
-      <div className="z-10 max-w-2xl text-center px-4">
-        <h2 className="text-5xl md:text-7xl font-bold mb-8 text-white drop-shadow-xl">
-          Let's Build Something That <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">Scales</span>
-        </h2>
-        <p className="text-xl text-brand-silver mb-12">
-          Ready to transform your digital presence? We're taking on new projects for Q3.
-        </p>
-        
-        <div className="flex flex-col gap-4 max-w-md mx-auto relative glass-panel p-6 rounded-2xl border border-white/10">
-          <div className="relative w-full">
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value)
-                setError('')
-              }}
-              placeholder="Your email address" 
-              className={`w-full bg-black/40 border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-6 py-4 text-white focus:outline-none focus:border-brand-cyan transition-colors`}
-            />
-            {error && (
-              <p className="text-red-400 text-sm mt-2 text-left px-2">{error}</p>
-            )}
-          </div>
+      <div className="z-10 w-full max-w-7xl mx-auto px-4 pl-8 md:pl-32 flex flex-col justify-center h-full">
+        <div className="max-w-xl text-left">
+          <h2 className="text-5xl md:text-7xl font-bold mb-8 text-white drop-shadow-xl">
+            Let's Build Something That <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">Scales</span>
+          </h2>
+          <p className="text-xl text-[#C9CDD6] mb-12">
+            Ready to transform your digital presence? We're taking on new projects for Q3.
+          </p>
           
-          <button 
-            onClick={handleGetInTouch}
-            className="w-full text-center block bg-brand-blue hover:bg-brand-cyan text-white font-bold py-4 rounded-xl transition-colors shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(34,211,238,0.6)]"
+          <motion.div 
+            layoutId="faq-cta-handoff"
+            className="flex flex-col gap-4 relative bg-[#0A0E1A]/60 backdrop-blur-xl p-8 rounded-3xl border border-brand-cyan/50 shadow-[0_0_40px_rgba(34,211,238,0.2)]"
           >
-            Get In Touch
-          </button>
+            <div className="relative w-full">
+              <input 
+                type="email" 
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setError('')
+                }}
+                placeholder="Your email address" 
+                className={`w-full bg-white/5 border ${error ? 'border-red-500' : 'border-white/20'} rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-brand-cyan transition-colors text-lg`}
+              />
+              {error && (
+                <p className="text-red-400 text-sm mt-2 text-left px-2">{error}</p>
+              )}
+            </div>
+            
+            <button 
+              onClick={handleGetInTouch}
+              className="w-full text-center block bg-brand-cyan hover:bg-[#1E40AF] hover:text-white text-[#0A0E1A] font-bold py-4 rounded-2xl transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] text-lg"
+            >
+              Get In Touch
+            </button>
+          </motion.div>
         </div>
       </div>
     </section>
