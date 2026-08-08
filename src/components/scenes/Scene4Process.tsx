@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform, useReducedMotion, useMotionTemplate } from 'framer-motion'
+import { Shard, ShardId } from '@/components/ui/Shard'
 
 const steps = [
   { title: "Discover", desc: "Learn business, goals, constraints.", id: "01" },
@@ -93,7 +94,7 @@ export function Scene4Process() {
                   <div className="absolute inset-0 bg-gradient-to-br from-brand-cyan/0 via-transparent to-brand-blue/0 group-hover:from-brand-cyan/10 group-hover:to-brand-blue/10 transition-colors duration-500" />
                   
                   <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-100 transition-opacity duration-500 text-brand-cyan transform group-hover:scale-110 group-hover:rotate-12">
-                    <Shard shardId={idx % 4 + 1} className="w-32 h-32" />
+                    <Shard shardId={(idx % 4 + 1) as ShardId} className="w-32 h-32" />
                   </div>
 
                   <div className="relative z-10">
