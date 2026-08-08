@@ -139,37 +139,60 @@ function DesktopServices() {
   const triggerRef = useRef<HTMLDivElement>(null)
   
   useGSAP(() => {
-    // Total pin scroll distance: 400vh (4 clusters * 100vh each)
+    // Total pin scroll distance: 1000vh (100vh per card, 10 cards total)
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: triggerRef.current,
         start: "top top",
-        end: "+=400%",
+        end: "+=1000%",
         scrub: 1,
         pin: true,
         anticipatePin: 1
       }
     });
 
-    clusters.forEach((cluster, idx) => {
-      const clusterEl = document.querySelector(`.cluster-${idx}`);
-      const cards = gsap.utils.toArray(`.cluster-${idx} .service-card`);
-      const isLast = idx === clusters.length - 1;
+    let currentTime = 0;
 
-      // Inner Animation (Fanning out the cards) - Takes 60% of this cluster's 100vh block
-      tl.to(cards, {
-        y: (i) => (i - (cards.length - 1) / 2) * 120,
-        x: (i) => Math.abs(i - (cards.length - 1) / 2) * 20,
-        rotateZ: (i) => (i - (cards.length - 1) / 2) * 4,
-        scale: 1,
-        stagger: 0.05,
-        ease: "power2.out",
-        duration: 0.6
+    clusters.forEach((cluster, cIdx) => {
+      const clusterEl = document.querySelector(`.cluster-${cIdx}`);
+      const cards = gsap.utils.toArray(`.cluster-${cIdx} .service-card`);
+      const numCards = cluster.services.length;
+
+      cards.forEach((card, cardIdx) => {
+        const isActiveTimeStart = currentTime + cardIdx;
+        const isActiveTimeEnd = isActiveTimeStart + 1;
+
+        // Future -> Active (Slide to front)
+        if (cardIdx > 0) {
+          tl.to(card, {
+            y: 0,
+            scale: 1,
+            opacity: 1,
+            duration: 0.2,
+            ease: "power2.out"
+          }, isActiveTimeStart - 0.2);
+        }
+
+        // Active -> Past (Slide up and fade out)
+        // We do this for all cards except the last one of the cluster, 
+        // which stays active and rides the horizontal cluster swap transition.
+        if (cardIdx < numCards - 1) {
+          tl.to(card, {
+            y: -100,
+            opacity: 0,
+            scale: 0.95,
+            duration: 0.2,
+            ease: "power2.in"
+          }, isActiveTimeEnd - 0.2);
+        }
       });
 
-      // Horizontal Swap Out - Takes 40% of this cluster's 100vh block
-      if (!isLast) {
-        const nextClusterEl = document.querySelector(`.cluster-${idx + 1}`);
+      // Horizontal Swap Out - Takes the last 0.4 (40vh) of this cluster's time
+      const isLastCluster = cIdx === clusters.length - 1;
+      const clusterEndTime = currentTime + numCards;
+
+      if (!isLastCluster) {
+        const nextClusterEl = document.querySelector(`.cluster-${cIdx + 1}`);
         
         // Active cluster slides out left
         tl.to(clusterEl, {
@@ -177,7 +200,7 @@ function DesktopServices() {
           opacity: 0,
           ease: "power2.inOut",
           duration: 0.4
-        }, "swap"); 
+        }, clusterEndTime - 0.4); 
         
         // Next cluster slides in from right
         tl.fromTo(nextClusterEl, {
@@ -188,8 +211,10 @@ function DesktopServices() {
           opacity: 1,
           ease: "power2.inOut",
           duration: 0.4
-        }, "swap");
+        }, clusterEndTime - 0.4);
       }
+
+      currentTime += numCards;
     });
 
     // Spin shard continuously
@@ -244,8 +269,11 @@ function DesktopServices() {
                     key={service.id} 
                     className="service-card absolute w-full"
                     style={{ 
-                      // Tight initial stack (like a deck of cards)
-                      transform: `translateY(${idx * 12}px) translateX(${idx * 4}px) rotateZ(${idx * 0.5}deg) scale(${1 - idx * 0.05})`,
+                      // Initial setup: first card is active, others are stacked behind
+                      transform: idx === 0 
+                        ? `translateY(0px) scale(1)` 
+                        : `translateY(${idx * 20}px) scale(${1 - idx * 0.05})`,
+                      opacity: idx === 0 ? 1 : 0.4,
                       zIndex: 10 - idx
                     }}
                   >
@@ -267,7 +295,7 @@ export function Scene3Services(props: any) {
 
   useEffect(() => {
     setMounted(true);
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024); // use lg breakpoint for horizontal spread
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
