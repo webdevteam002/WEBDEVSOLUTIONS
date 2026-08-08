@@ -56,9 +56,9 @@ Thanks,
     <section id="contact" className="relative h-screen w-full flex items-center bg-[#0A0E1A] overflow-hidden">
       
       {/* Centralized completed Hexagon Mark (all 6 shards converged) */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+      <div className="absolute inset-0 flex items-center justify-end pointer-events-none z-0">
         <motion.div 
-          className="relative w-[500px] h-[500px] md:w-[700px] md:h-[700px] opacity-40 md:opacity-60 md:translate-x-32"
+          className="relative w-[500px] h-[500px] md:w-[800px] md:h-[800px] opacity-60 md:translate-x-[15%]"
           initial={{ scale: 0.8, filter: 'blur(10px)' }}
           whileInView={{ scale: 1, filter: 'blur(0px)' }}
           transition={{ duration: 1, ease: "easeOut" }}
@@ -67,7 +67,8 @@ Thanks,
           <img 
             src="/contact-graphic.png" 
             alt="WebDev Solutions Contact Graphic" 
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain mix-blend-screen"
+            style={{ maskImage: 'radial-gradient(circle, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)', WebkitMaskImage: 'radial-gradient(circle, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)' }}
           />
         </motion.div>
       </div>
