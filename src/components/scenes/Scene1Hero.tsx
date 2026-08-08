@@ -25,9 +25,9 @@ export function Scene1Hero() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Preload all 192 frames on mount
+  // Preload all 480 frames on mount
   useEffect(() => {
-    const frameCount = 192
+    const frameCount = 480
     const loadedImages: HTMLImageElement[] = new Array(frameCount)
     let loadedCount = 0
 
@@ -63,7 +63,7 @@ export function Scene1Hero() {
   // Scroll-scrub: useMotionValueEvent to map scroll progress to frame index
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (!isLoaded || images.length === 0 || !imgRef.current) return
-    const frameIndex = Math.min(191, Math.max(0, Math.round(latest * 191)))
+    const frameIndex = Math.min(479, Math.max(0, Math.round(latest * 479)))
 
     if (frameIndex !== lastDrawnIndex.current) {
       lastDrawnIndex.current = frameIndex

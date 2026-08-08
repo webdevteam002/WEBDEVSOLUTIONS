@@ -19,10 +19,8 @@ export function Navbar() {
       className="fixed top-0 left-0 w-full z-[100] bg-transparent"
     >
       <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
-        {/* Left Column: Logo & Agency Name */}
-        <Link href="/" className="relative flex items-center gap-3">
-          <span className="text-lg font-bold text-white tracking-wide">WebDev Solutions</span>
-        </Link>
+        {/* Left Column: Empty */}
+        <div className="w-10"></div>
 
         {/* Center Column: Anchor Links */}
         <nav className="hidden md:flex items-center gap-8">
