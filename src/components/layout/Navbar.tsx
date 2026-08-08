@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import Link from 'next/link'
 
 const NAV_LINKS = [
@@ -22,14 +21,6 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
         {/* Left Column: Logo & Agency Name */}
         <Link href="/" className="relative flex items-center gap-3">
-          <Image 
-            src="/logo.png" 
-            alt="WebDev Solutions Logo" 
-            width={40} 
-            height={40} 
-            className="h-8 w-auto object-contain"
-            priority
-          />
           <span className="text-lg font-bold text-white tracking-wide">WebDev Solutions</span>
         </Link>
 
