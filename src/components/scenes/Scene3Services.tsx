@@ -139,6 +139,9 @@ function DesktopServices() {
   const triggerRef = useRef<HTMLDivElement>(null)
   
   useGSAP(() => {
+    // Ensure plugins are registered inside the client-side hook context
+    gsap.registerPlugin(ScrollTrigger);
+
     // Total pin scroll distance: 1000vh (100vh per card, 10 cards total)
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -147,15 +150,24 @@ function DesktopServices() {
         end: "+=1000%",
         scrub: 1,
         pin: true,
-        anticipatePin: 1
+        anticipatePin: 1,
+        // invalidateOnRefresh ensures values like "+=1000%" are recalculated if window resizes
+        invalidateOnRefresh: true 
       }
     });
+
+    // Force a ScrollTrigger refresh after a tiny delay to ensure all DOM elements
+    // (and their dynamically loaded images/fonts) have settled their heights,
+    // which prevents the pin from releasing early due to miscalculated end markers.
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 200);
 
     let currentTime = 0;
 
     clusters.forEach((cluster, cIdx) => {
       const clusterEl = document.querySelector(`.cluster-${cIdx}`);
-      const cards = gsap.utils.toArray(`.cluster-${cIdx} .service-card`);
+      const cards = gsap.utils.toArray(`.cluster-${cIdx} .service-card`) as HTMLElement[];
       const numCards = cluster.services.length;
 
       cards.forEach((card, cardIdx) => {
@@ -225,10 +237,11 @@ function DesktopServices() {
       ease: "linear"
     });
 
+    return () => clearTimeout(refreshTimer);
   }, { scope: containerRef });
 
   return (
-    <section id="services" ref={triggerRef} className="h-screen w-full bg-[#0A0E1A] overflow-hidden relative">
+    <section id="services" ref={triggerRef} className="h-screen w-full bg-[#0A0E1A] overflow-hidden relative shrink-0">
       <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
         
         {/* Shard Assembly Motif */}
