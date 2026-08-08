@@ -186,7 +186,7 @@ export function Scene1Hero() {
             transition={{ staggerChildren: 0.1, delayChildren: 0.2 }}
             className="w-full flex flex-col items-center justify-center"
           >
-            <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold text-center tracking-tighter leading-[1.1] drop-shadow-2xl flex flex-col items-center">
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-center tracking-tighter leading-[1.1] drop-shadow-2xl flex flex-col items-center">
               
               <motion.div 
                 className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2"

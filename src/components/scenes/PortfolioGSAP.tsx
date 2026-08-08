@@ -100,12 +100,12 @@ export default function PortfolioGSAP({ projects }: { projects: ProjectData[] })
           <div 
             key={project.id} 
             ref={el => { panelsRef.current[i] = el }}
-            className="h-full flex items-center justify-center p-24 shrink-0"
+            className="h-full flex items-center justify-center px-16 py-12 shrink-0"
             style={{ width: '100vw' }}
           >
-            <div className="w-full h-full flex items-center gap-16 relative">
+            <div className="w-full max-w-6xl mx-auto flex items-center gap-12 relative">
               {/* Image side */}
-              <div className="w-3/5 h-[70vh] rounded-2xl overflow-hidden relative border border-white/10 shadow-2xl">
+              <div className="w-1/2 h-[55vh] rounded-2xl overflow-hidden relative border border-white/10 shadow-2xl">
                 {project.imageFallback ? (
                   <Image src={project.imageFallback} alt={project.title} fill className="object-cover portfolio-img transform origin-center" />
                 ) : (
@@ -116,23 +116,23 @@ export default function PortfolioGSAP({ projects }: { projects: ProjectData[] })
               </div>
               
               {/* Content side */}
-              <div className="w-2/5 flex flex-col gap-6 portfolio-content">
-                <span className="text-brand-cyan font-mono">{project.category}</span>
-                <h3 className="text-4xl lg:text-6xl font-bold text-white leading-tight">{project.title}</h3>
-                <p className="text-[#C9CDD6] text-lg leading-relaxed">{project.description}</p>
-                <div className="flex flex-wrap gap-2 mt-4">
+              <div className="w-1/2 flex flex-col gap-4 portfolio-content">
+                <span className="text-brand-cyan font-mono text-sm">{project.category}</span>
+                <h3 className="text-2xl lg:text-3xl font-bold text-white leading-tight">{project.title}</h3>
+                <p className="text-[#C9CDD6] text-sm leading-relaxed">{project.description}</p>
+                <div className="flex flex-wrap gap-2 mt-2">
                   {project.tech.map(t => (
                      <span key={t} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-white/50">{t}</span>
                   ))}
                 </div>
                 
-                <div className="mt-8">
+                <div className="mt-4">
                   {project.link ? (
-                    <a href={project.link} target="_blank" rel="noreferrer" className="inline-block px-8 py-3 bg-brand-cyan text-black font-bold rounded-full hover:scale-105 transition-transform">
+                    <a href={project.link} target="_blank" rel="noreferrer" className="inline-block px-6 py-2.5 bg-brand-cyan text-black font-bold rounded-full hover:scale-105 transition-transform text-sm">
                       View Project
                     </a>
                   ) : (
-                    <span className="inline-block px-8 py-3 bg-white/5 border border-white/10 text-white/50 font-bold rounded-full">
+                    <span className="inline-block px-6 py-2.5 bg-white/5 border border-white/10 text-white/50 font-bold rounded-full text-sm">
                       Case Study
                     </span>
                   )}
