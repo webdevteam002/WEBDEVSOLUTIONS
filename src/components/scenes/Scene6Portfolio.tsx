@@ -17,16 +17,7 @@ export interface ProjectData {
   imageFallback?: string;
 }
 
-export const portfolioData: ProjectData[] = [
-  { id: '1', title: "Hamdard Enterprises Portal", category: "Web App", description: "Engineered and deployed a production-grade enterprise web application...", tech: ["Next.js", "React", "Node.js"], link: "https://hamdardenterprises.vercel.app/", imageFallback: "/hamdard.png" },
-  { id: '2', title: "Interactive 3D Human Body Explorer", category: "3D & Interactive", description: "Architected an interactive 3D anatomy visualization tool...", tech: ["WebGL", "Three.js"], link: null },
-  { id: '3', title: "Ferrari Digital Experience", category: "Frontend UI", description: "Designed a high-end vehicle showcase inspired by minimalist aesthetics...", tech: ["Framer Motion", "CSS3"], link: null },
-  { id: '4', title: "Neurosurgeon Medical Portfolio", category: "Healthcare Tech", description: "Developed a custom healthcare web application...", tech: ["React", "Node.js"], link: null },
-  { id: '5', title: "Campus Management System", category: "Database Systems", description: "Built a centralized campus registry...", tech: ["PHP", "MySQL"], link: null }
-]
-
-export function Scene6Portfolio({ projects }: { projects?: ProjectData[] }) {
-  const data = projects || portfolioData
+export function Scene6Portfolio({ projects }: { projects: ProjectData[] }) {
   const [isMobile, setIsMobile] = useState(false)
   const [mounted, setMounted] = useState(false)
 
@@ -42,18 +33,18 @@ export function Scene6Portfolio({ projects }: { projects?: ProjectData[] }) {
 
   // Desktop uses the dynamically imported GSAP version
   if (!isMobile) {
-    return <PortfolioGSAP projects={data} />
+    return <PortfolioGSAP projects={projects} />
   }
 
-  // Mobile uses native CSS scroll-snap (straight crossfade on snap conceptually, handled via snapping full-width cards)
+  // Mobile uses native CSS scroll-snap
   return (
-    <section id="projects" className="bg-[#0A0E1A] py-24 border-y border-white/5">
+    <section id="projects" className="relative bg-[#0A0E1A] py-24 border-y border-white/5">
       <div className="px-6 mb-8">
         <h2 className="text-4xl font-bold text-white mb-4">Selected Work</h2>
       </div>
       
       <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar w-full px-6 gap-6 pb-8">
-        {data.map((project) => (
+        {projects.map((project) => (
           <div key={project.id} className="w-[85vw] shrink-0 snap-center flex flex-col gap-6">
             <div className="w-full h-[40vh] rounded-2xl overflow-hidden relative border border-white/10">
               {project.imageFallback ? (
@@ -82,7 +73,7 @@ export function Scene6Portfolio({ projects }: { projects?: ProjectData[] }) {
                   </a>
                 ) : (
                   <span className="inline-block px-6 py-2 bg-white/5 border border-white/10 text-white/50 font-bold rounded-full text-sm">
-                    Case Study Coming Soon
+                    Case Study
                   </span>
                 )}
               </div>

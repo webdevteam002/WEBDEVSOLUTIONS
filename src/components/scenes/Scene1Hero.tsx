@@ -9,7 +9,7 @@ export function Scene1Hero() {
   const words2 = "Digital Experiences".split(" ")
   const words3 = "That Scale.".split(" ")
 
-  const containerRef = useRef<HTMLElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   
   const { scrollYProgress } = useScroll({
@@ -19,13 +19,11 @@ export function Scene1Hero() {
 
   const shouldReduceMotion = useReducedMotion()
   
-  // State for canvas frames
   const [images, setImages] = useState<HTMLImageElement[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const lastDrawnIndex = useRef(-1)
 
-  // Determine mobile status
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
     checkMobile()
@@ -33,59 +31,53 @@ export function Scene1Hero() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Preload frames
+  // Preload all 80 frames on mount
   useEffect(() => {
-    if (shouldReduceMotion) {
-      const img = new Image()
-      img.src = '/hero-frames/frame_001.webp'
-      img.onload = () => {
-        setImages([img])
-        setIsLoaded(true)
-      }
-      return
-    }
-
     const frameCount = 80
-    const loadedImages: HTMLImageElement[] = []
+    const loadedImages: HTMLImageElement[] = new Array(frameCount)
     let loadedCount = 0
 
-    const step = isMobile ? 3 : 1
-    const totalToLoad = Math.ceil(frameCount / step)
-
-    for (let i = 1; i <= frameCount; i += step) {
+    for (let i = 0; i < frameCount; i++) {
       const img = new Image()
-      img.src = `/hero-frames/frame_${i.toString().padStart(3, '0')}.webp`
-      const arrayIndex = Math.floor((i - 1) / step)
-      loadedImages[arrayIndex] = img
-
+      img.src = `/hero-frames/frame_${(i + 1).toString().padStart(3, '0')}.webp`
+      loadedImages[i] = img
       img.onload = () => {
         loadedCount++
-        if (loadedCount === totalToLoad) {
+        if (loadedCount === frameCount) {
+          setImages(loadedImages)
+          setIsLoaded(true)
+        }
+      }
+      img.onerror = () => {
+        loadedCount++
+        if (loadedCount === frameCount) {
           setImages(loadedImages)
           setIsLoaded(true)
         }
       }
     }
-  }, [isMobile, shouldReduceMotion])
+  }, [])
 
+  // Draw a specific frame onto the canvas
   const drawFrame = (index: number) => {
     const canvas = canvasRef.current
-    if (!canvas || !images[index]) return
+    if (!canvas) return
+    const img = images[index]
+    if (!img || !img.complete || img.naturalWidth === 0) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     const dpr = window.devicePixelRatio || 1
     const rect = canvas.getBoundingClientRect()
     
-    // Only resize canvas if dimensions actually changed to avoid clearing
-    if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
-      canvas.width = rect.width * dpr
-      canvas.height = rect.height * dpr
+    if (canvas.width !== Math.round(rect.width * dpr) || canvas.height !== Math.round(rect.height * dpr)) {
+      canvas.width = Math.round(rect.width * dpr)
+      canvas.height = Math.round(rect.height * dpr)
       ctx.scale(dpr, dpr)
     }
 
-    const img = images[index]
-    const imgRatio = img.width / img.height
+    // object-fit: cover math
+    const imgRatio = img.naturalWidth / img.naturalHeight
     const canvasRatio = rect.width / rect.height
     let drawWidth = rect.width
     let drawHeight = rect.height
@@ -101,7 +93,6 @@ export function Scene1Hero() {
     }
 
     ctx.clearRect(0, 0, rect.width, rect.height)
-    ctx.globalAlpha = 0.35 // 35% opacity as specified
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
   }
 
@@ -122,41 +113,35 @@ export function Scene1Hero() {
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [isLoaded])
+  }, [isLoaded, images])
 
-  // Render loop mapped to scroll progress
+  // Scroll-scrub: useMotionValueEvent to map scroll progress to frame index
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (!isLoaded || images.length === 0) return
-    let index = Math.round(latest * (images.length - 1))
-    if (index >= images.length) index = images.length - 1
-    if (index < 0) index = 0
+    const frameIndex = Math.min(79, Math.max(0, Math.round(latest * 79)))
 
-    if (index !== lastDrawnIndex.current) {
-      lastDrawnIndex.current = index
-      requestAnimationFrame(() => drawFrame(index))
+    if (frameIndex !== lastDrawnIndex.current) {
+      lastDrawnIndex.current = frameIndex
+      requestAnimationFrame(() => drawFrame(frameIndex))
     }
   })
 
   // Headline divergences
-  // Line 1: drifts left+up
   const line1X = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"])
   const line1Y = useTransform(scrollYProgress, [0, 1], ["0%", "-100%"])
   const line1Opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
   
-  // Line 2: scales toward camera and fades
   const line2Scale = useTransform(scrollYProgress, [0, 1], [1, 3])
   const line2Opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
 
-  // Line 3: drifts right+down, then hands off to Tension
   const line3X = useTransform(scrollYProgress, [0, 1], ["0%", "20%"])
   const line3Y = useTransform(scrollYProgress, [0, 1], ["0%", "150%"])
   
-  // Mobile divergence simplification: just drift up
   const mobileDriftY = useTransform(scrollYProgress, [0, 1], ["0%", "-100%"])
   const mobileOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
 
-  // Shard 1 positioning (mouse parallax + scroll drift)
   const shard1Y = useTransform(scrollYProgress, [0, 1], [0, 300])
+  const chevronOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
 
   const wordVariants = {
     hidden: { y: "120%", rotate: 5, opacity: 0 },
@@ -169,23 +154,24 @@ export function Scene1Hero() {
   }
 
   return (
-    <section ref={containerRef} className="relative h-[200vh] w-full bg-[#0A0E1A]">
-      <div className="sticky top-0 left-0 w-full h-screen overflow-hidden">
-        {/* Scroll-scrubbed Canvas */}
-        <canvas 
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full object-cover z-0"
-        />
-        
-        {/* Loading Fallback */}
-        {!isLoaded && (
-          <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0A0E1A] to-[#1E40AF]/20 opacity-30" />
-        )}
+    <div ref={containerRef} className="relative w-full h-[200vh]">
+      {/* Sticky canvas — NOT absolute */}
+      <canvas 
+        ref={canvasRef}
+        className="sticky top-0 left-0 w-full h-screen object-cover z-0 opacity-30"
+      />
 
+      {/* Fallback gradient shown until frames load */}
+      {!isLoaded && (
+        <div className="fixed top-0 left-0 w-full h-screen z-0 bg-gradient-to-b from-[#0A0E1A] to-[#1E40AF]/20 pointer-events-none" />
+      )}
+
+      {/* Overlay content pinned on top of the sticky canvas */}
+      <div className="sticky top-0 left-0 w-full h-screen pointer-events-none z-10" style={{ marginTop: '-100vh' }}>
         {/* Shard 1 overlay */}
         {!shouldReduceMotion && (
           <motion.div 
-            className="absolute left-[15%] top-[20%] pointer-events-none z-0"
+            className="absolute left-[15%] top-[20%]"
             style={{ y: shard1Y }}
           >
             <Shard shardId={1} className="w-24 h-24 opacity-60" />
@@ -193,7 +179,7 @@ export function Scene1Hero() {
         )}
 
         {/* Center: Kinetic Text Content */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 pointer-events-none z-10">
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
           <motion.div 
             initial="hidden"
             animate="visible"
@@ -247,8 +233,8 @@ export function Scene1Hero() {
         
         {/* Scroll-cue chevron */}
         <motion.div 
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 z-10"
-          style={{ opacity: useTransform(scrollYProgress, [0, 0.1], [1, 0]) }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50"
+          style={{ opacity: chevronOpacity }}
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
         >
@@ -257,6 +243,6 @@ export function Scene1Hero() {
           </svg>
         </motion.div>
       </div>
-    </section>
+    </div>
   )
 }
