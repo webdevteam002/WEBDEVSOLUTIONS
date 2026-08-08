@@ -144,23 +144,23 @@ function DesktopServices() {
             key={cluster.id} 
             className="w-full flex items-start px-8 md:pl-48 md:pr-12 max-w-7xl mx-auto"
           >
-            {/* Left 1/3: Premium Editorial Title */}
-            <div className="w-1/3 flex flex-col justify-start pr-8 sticky top-32">
+            {/* Left 1/2: Premium Editorial Title */}
+            <div className="w-1/2 flex flex-col justify-start pr-8 sticky top-32">
               {cIdx === 0 ? (
                 <h2 
-                  className="text-[80px] lg:text-[120px] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue leading-none"
+                  className="text-[64px] lg:text-[96px] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue leading-none"
                 >
                   {cluster.name}
                 </h2>
               ) : (
-                <h2 className="text-[80px] lg:text-[120px] font-bold tracking-tight text-white leading-none">
+                <h2 className="text-[64px] lg:text-[96px] font-bold tracking-tight text-white leading-none">
                   {cluster.name}
                 </h2>
               )}
             </div>
 
-            {/* Right 2/3: Tactile Card Group (Static Stack) */}
-            <div className="w-2/3 flex flex-col gap-8 items-center justify-center">
+            {/* Right 1/2: Tactile Card Group (Static Stack) */}
+            <div className="w-1/2 flex flex-col gap-8 items-center justify-center">
               <div className="w-full max-w-[400px] flex flex-col gap-8">
                 {cluster.services.map((service, idx) => (
                   <div key={service.id} className="w-full">
