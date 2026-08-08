@@ -1,121 +1,100 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { motion, useScroll, useTransform, useReducedMotion, useMotionTemplate } from 'framer-motion'
-import { Shard, ShardId } from '@/components/ui/Shard'
+import { useRef } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { Shard } from '@/components/ui/Shard'
 
 const steps = [
-  { title: "Discover", desc: "Learn business, goals, constraints.", id: "01" },
-  { title: "Strategize", desc: "Map architecture and tech stack.", id: "02" },
-  { title: "Design", desc: "Wireframes, prototypes, visual system.", id: "03" },
-  { title: "Develop", desc: "Sprints, regular demos, clean code.", id: "04" },
-  { title: "Test & Refine", desc: "QA, performance, security checks.", id: "05" },
-  { title: "Launch & Scale", desc: "Deploy, monitor, ongoing technical partnership.", id: "06" },
+  { title: "Discover", desc: "Learn business, goals, constraints." },
+  { title: "Strategize", desc: "Map architecture and tech stack." },
+  { title: "Design", desc: "Wireframes, prototypes, visual system." },
+  { title: "Develop", desc: "Sprints, regular demos, clean code." },
+  { title: "Test & Refine", desc: "QA, performance, security checks." },
+  { title: "Launch & Scale", desc: "Deploy, monitor, ongoing technical partnership." },
 ]
 
 export function Scene4Process() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const shouldReduceMotion = useReducedMotion()
+  const ref = useRef<HTMLDivElement>(null)
   
+  // Create a scroll window that ends slightly before the actual end,
+  // so the remaining 10% can be used to draw the horizontal exit line.
   const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
+    target: ref,
+    offset: ["start center", "end center"]
   })
 
-  // We use a motion template to perfectly slide the track based on its dynamic width vs window width.
-  // When scroll = 0, translate is calc(-0% + 0vw) -> 0
-  // When scroll = 1, translate is calc(-100% + 100vw) -> perfectly aligns the right edge!
-  const progressPercent = useTransform(scrollYProgress, p => p * 100)
-  const x = useMotionTemplate`calc(-${progressPercent}% + ${progressPercent}vw)`
-
-  const [isMobile, setIsMobile] = useState(false)
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  if (isMobile || shouldReduceMotion) {
-    return (
-      <section className="relative py-24 w-full bg-[#0A0E1A] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl md:text-6xl font-bold mb-16">
-            Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-cyan">Process</span>
-          </h2>
-          <div className="flex flex-col gap-8">
-            {steps.map((step, idx) => (
-              <div key={idx} className="p-8 rounded-2xl bg-white/5 border border-white/10">
-                <span className="text-brand-cyan font-mono mb-2 block">Step {step.id}</span>
-                <h3 className="text-2xl font-bold text-white mb-2">{step.title}</h3>
-                <p className="text-[#C9CDD6]">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
+  // Vertical line draws from 0 to 0.9 progress
+  const lineDraw = useTransform(scrollYProgress, [0, 0.9], [0, 1])
+  
+  // Horizontal line (hand-off to Technology) draws from 0.9 to 1.0 progress
+  const horizontalExit = useTransform(scrollYProgress, [0.9, 1], [0, 1])
 
   return (
-    <section ref={containerRef} className="relative h-[400vh] bg-[#0A0E1A]">
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center">
-        
-        {/* Background Typography */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-          <motion.h2 
-            style={{ 
-              opacity: useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]),
-              scale: useTransform(scrollYProgress, [0, 1], [0.95, 1.05])
-            }}
-            className="text-[12rem] md:text-[20rem] font-black text-white/[0.03] tracking-tighter whitespace-nowrap"
-          >
-            PROCESS.
-          </motion.h2>
-        </div>
+    <section ref={ref} className="relative py-32 w-full bg-[#0A0E1A]">
+      <div className="max-w-4xl mx-auto px-4 pl-32 md:pl-4">
+        <h2 className="text-4xl md:text-6xl font-bold mb-24 text-center md:text-left md:ml-32">
+          Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-cyan">Process</span>
+        </h2>
 
-        {/* Horizontal Track */}
-        <div className="flex overflow-visible pl-[10vw]">
+        <div className="relative">
+          {/* Faded background line */}
+          <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-[2px] bg-white/10 transform md:-translate-x-1/2"></div>
+          
+          {/* Animated Neon Line */}
           <motion.div 
-            style={{ x }} 
-            className="flex gap-8 md:gap-16 items-center w-fit pr-[10vw] relative z-10"
-          >
+            className="absolute left-8 md:left-1/2 top-0 bottom-0 w-[2px] bg-brand-cyan transform md:-translate-x-1/2 origin-top drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]"
+            style={{ scaleY: lineDraw }}
+          />
+
+          <div className="space-y-32 pb-32">
             {steps.map((step, idx) => {
-              // We create a localized parallax effect for each card's internal content
-              const cardStart = idx * (1 / steps.length)
-              const cardEnd = cardStart + (1 / steps.length)
-              
-              return (
-                <div 
-                  key={idx} 
-                  className="relative w-[85vw] md:w-[600px] h-[400px] md:h-[500px] shrink-0 bg-[#0A0E1A]/60 backdrop-blur-xl border border-white/10 rounded-3xl p-10 md:p-16 flex flex-col justify-between overflow-hidden group hover:border-brand-cyan/50 transition-colors duration-500"
-                >
-                  {/* Neon Glow on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-brand-cyan/0 via-transparent to-brand-blue/0 group-hover:from-brand-cyan/10 group-hover:to-brand-blue/10 transition-colors duration-500" />
+               const isEven = idx % 2 === 0
+               // Node appears right when the line reaches it
+               const nodeProgress = idx / (steps.length - 1)
+               const nodeStart = nodeProgress * 0.9 // scaled to the 0.9 vertical duration
+               
+               const shardOpacity = useTransform(scrollYProgress, [nodeStart - 0.05, nodeStart], [0, 1])
+               const shardScale = useTransform(scrollYProgress, [nodeStart - 0.05, nodeStart + 0.1], [0, 1])
+               const shardRot = useTransform(scrollYProgress, [nodeStart - 0.05, nodeStart + 0.1], [-45, 0])
+
+               return (
+                <div key={idx} className={`relative flex flex-col md:flex-row items-center ${
+                  isEven ? 'md:flex-row-reverse' : ''
+                }`}>
                   
-                  <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-100 transition-opacity duration-500 text-brand-cyan transform group-hover:scale-110 group-hover:rotate-12">
-                    <Shard shardId={(idx % 4 + 1) as ShardId} className="w-32 h-32" />
+                  {/* Shard Node */}
+                  <div className="absolute left-8 md:left-1/2 w-12 h-12 transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center pointer-events-none">
+                     <motion.div
+                       style={{ opacity: shardOpacity, scale: shardScale, rotateZ: shardRot }}
+                     >
+                       <Shard shardId={isEven ? 3 : 4} className="w-12 h-12" />
+                     </motion.div>
                   </div>
 
-                  <div className="relative z-10">
-                    <span className="text-brand-cyan font-mono text-xl md:text-2xl mb-4 block">Step {step.id}</span>
-                    <h3 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">{step.title}</h3>
-                    <p className="text-[#C9CDD6] text-xl md:text-2xl leading-relaxed max-w-md">{step.desc}</p>
-                  </div>
-                  
-                  {/* Decorative Bottom Bar */}
-                  <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-8 relative z-10">
-                    <motion.div 
-                      className="h-full bg-brand-cyan rounded-full" 
-                      style={{
-                        width: useMotionTemplate`${useTransform(scrollYProgress, [cardStart - 0.2, cardEnd], [0, 100])}%`
-                      }}
-                    />
+                  {/* Content */}
+                  <div className="w-full md:w-1/2 pl-16 md:pl-0 md:px-16">
+                    <div className={`p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm ${
+                      isEven ? 'md:text-left' : 'md:text-right'
+                    }`}>
+                      <span className="text-brand-cyan font-mono mb-2 block">Step 0{idx + 1}</span>
+                      <h3 className="text-2xl font-bold text-white mb-2">{step.title}</h3>
+                      <p className="text-[#C9CDD6]">{step.desc}</p>
+                    </div>
                   </div>
                 </div>
-              )
+               )
             })}
-          </motion.div>
+          </div>
+
+          {/* Hand-off line drawing off the right edge */}
+          <motion.div 
+            className="absolute left-8 md:left-1/2 bottom-0 h-[2px] bg-brand-cyan origin-left drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]"
+            style={{ 
+              width: "100vw", 
+              scaleX: horizontalExit,
+              marginLeft: "1px" // slight overlap to join perfectly
+            }}
+          />
         </div>
       </div>
     </section>

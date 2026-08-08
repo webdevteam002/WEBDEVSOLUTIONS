@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={cn("dark bg-brand-navy text-brand-silver", "font-sans", geist.variable)} suppressHydrationWarning>
-      <body className="antialiased" suppressHydrationWarning>
+      <body className="antialiased overflow-x-hidden" suppressHydrationWarning>
         <SmoothScrollProvider>
           <CursorProvider>
             <Background3D />

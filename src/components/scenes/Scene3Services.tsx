@@ -102,77 +102,6 @@ export function ServiceCardItem({ service, index, isMobile }: { service: Service
   )
 }
 
-function AnimatedCard({ service, index, totalCards, scrollYProgress }: { service: ServiceType, index: number, totalCards: number, scrollYProgress: any }) {
-  const step = 1 / totalCards
-  const start = index * step
-  const exitStart = start + step
-  const exitEnd = exitStart + step
-  
-  // Enter from bottom, sit at center, exit slightly up
-  const y = useTransform(scrollYProgress, 
-    [start - step, start, exitStart, exitEnd], 
-    ["100%", "0%", "0%", "-10%"]
-  )
-  
-  const scale = useTransform(scrollYProgress, 
-    [start, exitStart, exitEnd], 
-    [1, 1, 0.85]
-  )
-  
-  // Fade in on enter, drop to 0.3 on exit for depth stacking effect
-  const opacity = useTransform(scrollYProgress, 
-    [start - step, start, exitStart, exitEnd], 
-    [0, 1, 1, 0.3]
-  )
-  
-  return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-      <motion.div 
-        className="pointer-events-auto"
-        style={{ y, scale, opacity, zIndex: 20 - index }}
-      >
-        <ServiceCardItem service={service} index={index} isMobile={false} />
-      </motion.div>
-    </div>
-  )
-}
-
-function ClusterHeading({ cluster, startIdx, endIdx, totalCards, scrollYProgress, isFirst }: { cluster: any, startIdx: number, endIdx: number, totalCards: number, scrollYProgress: any, isFirst: boolean }) {
-  const step = 1 / totalCards
-  const start = startIdx * step
-  const end = (endIdx + 1) * step
-  
-  const opacity = useTransform(scrollYProgress,
-    [Math.max(0, start - step), start, end, Math.min(1, end + step)],
-    [0, 1, 1, 0]
-  )
-  
-  const scale = useTransform(scrollYProgress,
-    [start, end],
-    [1, 1.05]
-  )
-
-  return (
-    <motion.div 
-      className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none"
-      style={{ opacity, scale }}
-    >
-      {isFirst ? (
-        <motion.h2 
-          layoutId="we-build-differently"
-          className="text-7xl md:text-[12rem] font-black text-transparent bg-clip-text bg-gradient-to-b from-brand-cyan/20 to-brand-blue/5 tracking-tighter whitespace-nowrap text-center"
-        >
-          {cluster.name}
-        </motion.h2>
-      ) : (
-        <h2 className="text-7xl md:text-[12rem] font-black text-white/5 tracking-tighter whitespace-nowrap text-center">
-          {cluster.name}
-        </h2>
-      )}
-    </motion.div>
-  )
-}
-
 export function Scene3Services({ services: _ignored }: { services?: any }) {
   const containerRef = useRef<HTMLElement>(null)
   const shouldReduceMotion = useReducedMotion()
@@ -190,6 +119,29 @@ export function Scene3Services({ services: _ignored }: { services?: any }) {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Cluster 1 (Build) - 0 to 0.25
+  const c1x = useTransform(scrollYProgress, [0, 0.05, 0.2, 0.25], ["50vw", "0vw", "0vw", "-100vw"])
+  const c1op = useTransform(scrollYProgress, [0, 0.05, 0.2, 0.25], [0, 1, 1, 0])
+  
+  // Cluster 2 (Integrate) - 0.25 to 0.5
+  const c2x = useTransform(scrollYProgress, [0.25, 0.3, 0.45, 0.5], ["50vw", "0vw", "0vw", "-100vw"])
+  const c2op = useTransform(scrollYProgress, [0.25, 0.3, 0.45, 0.5], [0, 1, 1, 0])
+  
+  // Cluster 3 (Sell) - 0.5 to 0.75
+  const c3x = useTransform(scrollYProgress, [0.5, 0.55, 0.7, 0.75], ["50vw", "0vw", "0vw", "-100vw"])
+  const c3op = useTransform(scrollYProgress, [0.5, 0.55, 0.7, 0.75], [0, 1, 1, 0])
+  
+  // Cluster 4 (Establish) - 0.75 to 1
+  const c4x = useTransform(scrollYProgress, [0.75, 0.8, 0.95, 1], ["50vw", "0vw", "0vw", "-100vw"]) // Continues left to hand-off into Process
+  const c4op = useTransform(scrollYProgress, [0.75, 0.8, 0.95, 1], [0, 1, 1, 0])
+
+  const clustersAnim = [
+    { x: c1x, op: c1op },
+    { x: c2x, op: c2op },
+    { x: c3x, op: c3op },
+    { x: c4x, op: c4op },
+  ]
 
   if (isMobile || shouldReduceMotion) {
     return (
@@ -216,46 +168,35 @@ export function Scene3Services({ services: _ignored }: { services?: any }) {
     )
   }
 
-  // Flatten services for 3D stacking map
-  const flatServices = clusters.flatMap(c => c.services)
-  const totalCards = flatServices.length
-
   return (
-    <section id="services" ref={containerRef} className="relative w-full h-[500vh] bg-[#0A0E1A]">
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center">
-        
-        {/* Background Cluster Typography */}
-        {clusters.map((cluster, cIdx) => {
-          // Calculate start and end indices for this cluster in the flattened array
-          const startIdx = clusters.slice(0, cIdx).reduce((acc, c) => acc + c.services.length, 0)
-          const endIdx = startIdx + cluster.services.length - 1
-          
-          return (
-            <ClusterHeading 
-              key={`heading-${cluster.id}`} 
-              cluster={cluster} 
-              startIdx={startIdx} 
-              endIdx={endIdx} 
-              totalCards={totalCards} 
-              scrollYProgress={scrollYProgress} 
-              isFirst={cIdx === 0}
-            />
-          )
-        })}
-
-        {/* 3D Depth-Stacking Cards */}
-        <div className="relative w-full h-full max-w-7xl mx-auto flex items-center justify-center">
-          {flatServices.map((service, idx) => (
-            <AnimatedCard 
-              key={service.id} 
-              service={service} 
-              index={idx} 
-              totalCards={totalCards} 
-              scrollYProgress={scrollYProgress} 
-            />
-          ))}
-        </div>
-        
+    <section id="services" ref={containerRef} className="relative w-full h-[600vh] bg-[#0A0E1A]">
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center pl-32">
+        {clusters.map((cluster, cIdx) => (
+          <motion.div 
+            key={cluster.id}
+            className="absolute inset-0 pl-8 md:pl-48 pr-4 w-full max-w-7xl mx-auto flex flex-col justify-center"
+            style={{ x: clustersAnim[cIdx].x, opacity: clustersAnim[cIdx].op }}
+          >
+            {cIdx === 0 ? (
+              <motion.h2 
+                layoutId="we-build-differently"
+                className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue mb-12"
+              >
+                {cluster.name}
+              </motion.h2>
+            ) : (
+              <h2 className="text-6xl md:text-8xl font-bold text-white mb-12">
+                {cluster.name}
+              </h2>
+            )}
+            
+            <div className="flex gap-6 overflow-visible pb-12 w-full pr-32">
+              {cluster.services.map((service, idx) => (
+                <ServiceCardItem key={service.id} service={service} index={idx} isMobile={false} />
+              ))}
+            </div>
+          </motion.div>
+        ))}
       </div>
     </section>
   )

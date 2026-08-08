@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
+import { useRef, useEffect, useState } from 'react'
+import { motion, useScroll, useVelocity, useSpring, useTransform, useAnimationFrame, useReducedMotion } from 'framer-motion'
 
 const techs = [
   "Next.js", "React", "TypeScript", "Tailwind CSS", 
@@ -9,12 +9,112 @@ const techs = [
   "PostgreSQL", "Sanity.io", "AWS", "Vercel"
 ]
 
+function MarqueeRow({ 
+  items, 
+  direction, 
+  baseVelocity,
+  scrollVelocity
+}: { 
+  items: string[], 
+  direction: 1 | -1, 
+  baseVelocity: number,
+  scrollVelocity: any
+}) {
+  const baseX = useRef(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  
+  // To handle the center-scale effect efficiently
+  const itemRefs = useRef<(HTMLSpanElement | null)[]>([])
+
+  useAnimationFrame((t, delta) => {
+    if (!containerRef.current) return
+
+    // Calculate dynamic velocity
+    let moveBy = direction * baseVelocity * (delta / 1000)
+    
+    // Add scroll velocity factor
+    if (scrollVelocity.get() !== 0) {
+      moveBy += direction * scrollVelocity.get() * (delta / 1000) * 0.05
+    }
+
+    baseX.current += moveBy
+
+    // Loop logic (approximate assuming 2 sets of items)
+    // We wrap around when we've moved past 50%
+    if (direction === -1 && baseX.current <= -50) {
+      baseX.current = 0
+    } else if (direction === 1 && baseX.current >= 0) {
+      baseX.current = -50
+    }
+
+    containerRef.current.style.transform = `translateX(${baseX.current}%)`
+
+    // Center scale effect calculation
+    const center = window.innerWidth / 2
+    itemRefs.current.forEach((el) => {
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      const elCenter = rect.left + rect.width / 2
+      const dist = Math.abs(center - elCenter)
+      
+      // If within a threshold (e.g., 150px) of center, scale up and brighten
+      if (dist < 200) {
+        const scale = 1 + (1 - dist / 200) * 0.15 // Up to 15% scale
+        const brightness = 1 + (1 - dist / 200) * 0.5
+        el.style.transform = `scale(${scale})`
+        // Add cyan glow to text dynamically via color interpolation or drop shadow
+        el.style.textShadow = `0 0 ${10 * (1 - dist/200)}px rgba(34, 211, 238, ${1 - dist/200})`
+        el.style.color = `rgba(34, 211, 238, ${0.5 + (1 - dist/200)*0.5})`
+      } else {
+        el.style.transform = `scale(1)`
+        el.style.textShadow = 'none'
+        el.style.color = 'rgba(255, 255, 255, 0.1)'
+      }
+    })
+  })
+
+  // Duplicate items for seamless loop
+  const allItems = [...items, ...items]
+
+  return (
+    <div className="flex whitespace-nowrap overflow-visible">
+      <div 
+        ref={containerRef}
+        className="flex gap-16 px-8"
+        style={{ width: '200%' }} // 200% width because we duplicated items
+      >
+        {allItems.map((tech, idx) => (
+          <span 
+            key={idx} 
+            ref={el => { itemRefs.current[idx] = el }}
+            className="text-4xl md:text-6xl font-black transition-colors"
+            style={{ color: 'rgba(255, 255, 255, 0.1)', display: 'inline-block', willChange: 'transform, color, text-shadow' }}
+          >
+            {tech}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function Scene5TechStack() {
   const containerRef = useRef<HTMLElement>(null)
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start end", "end start"]
+    offset: ["start end", "end start"] // track through entire view
+  })
+
+  const { scrollYProgress: convergenceProgress } = useScroll({
+    target: containerRef,
+    offset: ["end center", "end start"] // When leaving the section, converge
+  })
+
+  const scrollVelocity = useVelocity(scrollYProgress)
+  const smoothVelocity = useSpring(scrollVelocity, {
+    damping: 50,
+    stiffness: 400
   })
 
   const [isMobile, setIsMobile] = useState(false)
@@ -27,95 +127,53 @@ export function Scene5TechStack() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  if (isMobile || shouldReduceMotion) {
-    return (
-      <section className="py-24 bg-[#0A0E1A] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-12 text-white">Technology Stack</h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            {techs.map((tech, idx) => (
-              <span key={idx} className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[#C9CDD6]">
-                {tech}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  // Parallax background typography that moves slightly opposite to scroll
-  const bgY = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"])
+  // Convergence animation values
+  const gap = useTransform(convergenceProgress, [0, 1], ["4rem", "0rem"])
+  const opacity = useTransform(convergenceProgress, [0, 1], [1, 0.2])
   
-  // Total scroll distance is effectively 200vh (from start end to end start)
   return (
     <section 
       ref={containerRef} 
-      className="relative min-h-[150vh] bg-[#0A0E1A] flex flex-col justify-center overflow-hidden"
+      className="relative py-32 h-screen max-h-[800px] bg-[#0A0E1A] overflow-hidden flex flex-col justify-center border-y border-brand-cyan/20"
     >
-      {/* Immersive Parallax Background */}
       <motion.div 
-        style={{ y: bgY }}
-        className="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
-      >
-        <h2 className="text-[15rem] md:text-[25rem] font-black text-white/[0.02] tracking-tighter text-center leading-none">
-          STACK.
-        </h2>
-      </motion.div>
+        className="absolute left-0 right-0 top-0 h-[1px] bg-brand-cyan/50"
+        style={{ scaleX: convergenceProgress, transformOrigin: 'center' }}
+      />
 
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center pointer-events-none">
-        <div className="max-w-7xl mx-auto px-6 w-full relative z-10 flex flex-wrap justify-center gap-6 md:gap-10 pointer-events-auto">
-          {techs.map((tech, idx) => {
-            // We want them to stagger reveal as the user scrolls through the middle portion of the section
-            // The section is in view from 0 to 1.
-            // Center is around 0.5.
-            const itemRevealStart = 0.3 + (idx * 0.03)
-            const itemRevealEnd = itemRevealStart + 0.1
-            
-            const scale = useTransform(scrollYProgress, [itemRevealStart, itemRevealEnd], [0.5, 1])
-            const opacity = useTransform(scrollYProgress, [itemRevealStart, itemRevealEnd], [0, 1])
-            const y = useTransform(scrollYProgress, [itemRevealStart, itemRevealEnd], ["50px", "0px"])
-            
-            // Fade out towards the end of the section (from 0.8 to 1.0)
-            const fadeOut = useTransform(scrollYProgress, [0.8, 0.95], [1, 0])
-            
-            // Combine opacities using useTransform on the scroll again since we can't easily multiply hooks directly
-            const finalOpacity = useTransform(scrollYProgress, (p) => {
-              if (p < itemRevealStart) return 0
-              if (p > 0.95) return 0
-              if (p > 0.8) return 1 - ((p - 0.8) / 0.15)
-              return (p - itemRevealStart) / (itemRevealEnd - itemRevealStart)
-            })
-            
-            return (
-              <motion.div
-                key={idx}
-                style={{ scale, opacity: finalOpacity, y }}
-                className="group relative cursor-default"
-              >
-                {/* Neon Glow on hover */}
-                <div className="absolute inset-0 bg-brand-cyan/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <span 
-                  className="relative block text-5xl md:text-7xl font-black text-white/20 transition-all duration-500 group-hover:text-white"
-                  style={{
-                    WebkitTextStroke: '1px rgba(255,255,255,0.1)'
-                  }}
-                >
-                  {tech}
-                </span>
-              </motion.div>
-            )
-          })}
-        </div>
-      </div>
-      
-      {/* Hand-off to Portfolio */}
       <motion.div 
-        className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-brand-cyan to-transparent origin-center"
+        className="flex flex-col justify-center"
+        style={{ gap, opacity }}
+      >
+        {/* Row 1: Moves Left */}
+        {shouldReduceMotion ? (
+           <div className="flex gap-8 overflow-hidden text-white/30 text-4xl font-bold px-4">{techs.join(" • ")}</div>
+        ) : (
+           <MarqueeRow 
+             items={techs} 
+             direction={-1} 
+             baseVelocity={5} 
+             scrollVelocity={smoothVelocity} 
+           />
+        )}
+
+        {/* Row 2: Moves Right (Hidden on mobile) */}
+        {!isMobile && !shouldReduceMotion && (
+          <MarqueeRow 
+            items={techs.slice().reverse()} 
+            direction={1} 
+            baseVelocity={7} // slightly different base speed
+            scrollVelocity={smoothVelocity} 
+          />
+        )}
+      </motion.div>
+      
+      {/* The compressed horizontal band hand-off to Portfolio */}
+      <motion.div 
+        className="absolute bottom-0 left-0 right-0 h-[4px] bg-brand-cyan origin-center"
         style={{ 
-          scaleX: useTransform(scrollYProgress, [0.8, 1], [0, 1]),
-          opacity: useTransform(scrollYProgress, [0.8, 1], [0, 1]) 
+          scaleX: convergenceProgress,
+          opacity: convergenceProgress 
         }}
       />
     </section>
