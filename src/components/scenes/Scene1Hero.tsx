@@ -1,8 +1,7 @@
 'use client'
 
-import { motion, useScroll, useTransform, useReducedMotion, useMotionValueEvent } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import { Shard } from '@/components/ui/Shard'
 
 export function Scene1Hero() {
 
@@ -13,8 +12,6 @@ export function Scene1Hero() {
     target: containerRef,
     offset: ["start start", "end start"]
   })
-
-  const shouldReduceMotion = useReducedMotion()
   
   const [images, setImages] = useState<HTMLImageElement[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
@@ -74,39 +71,64 @@ export function Scene1Hero() {
     }
   })
 
-  const shard1Y = useTransform(scrollYProgress, [0, 1], [0, 300])
   const chevronOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
   return (
     <div ref={containerRef} className="relative w-full h-[400vh]">
-      {/* Native img tag for perfect object-fit cover and native hardware acceleration */}
-      <img 
-        ref={imgRef}
-        className="sticky top-0 left-0 w-full h-screen object-cover object-[center_15%] z-0"
-        alt="Cinematic Scroll Sequence"
-      />
-
-      {/* Fallback gradient shown until frames load */}
-      {!isLoaded && (
-        <div className="fixed top-0 left-0 w-full h-screen z-0 bg-gradient-to-b from-[#0A0E1A] to-[#1E40AF]/20 pointer-events-none" />
-      )}
-
-      {/* Overlay content pinned on top of the sticky canvas */}
-      <div className="sticky top-0 left-0 w-full h-screen pointer-events-none z-10" style={{ marginTop: '-100vh' }}>
-        {/* Shard 1 overlay */}
-        {!shouldReduceMotion && (
-          <motion.div 
-            className="absolute left-[15%] top-[20%]"
-            style={{ y: shard1Y }}
-          >
-            <Shard shardId={1} className="w-24 h-24 opacity-60" />
-          </motion.div>
-        )}
-
-
+      {/* Sticky container that stays on screen during the 400vh scroll */}
+      <div className="sticky top-0 left-0 w-full h-screen flex flex-col md:flex-row items-center z-0 overflow-hidden bg-[#0A0E1A]">
         
+        {/* Left Column: Text (Visible above the background) */}
+        <div className="w-full md:w-1/2 h-full flex flex-col justify-center px-8 md:pl-32 z-20 pt-24 md:pt-0 pointer-events-auto">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg"
+          >
+            We Engineer <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">
+              Digital Experiences
+            </span><br/>
+            That Scale
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="text-xl text-[#C9CDD6] mb-8 max-w-lg"
+          >
+            A premium Web3 & Full-Stack Agency with 2+ Years Experience delivering cinematic websites and scalable applications.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.4 }}
+          >
+            <a href="#projects" className="inline-block px-8 py-4 bg-brand-cyan text-[#0A0E1A] font-bold rounded-full hover:bg-white transition-colors duration-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:scale-105 transform">
+              Explore Our Work
+            </a>
+          </motion.div>
+        </div>
+
+        {/* Right Column: Animated Frames */}
+        <div className="absolute inset-0 md:relative md:w-1/2 h-full z-0 pointer-events-none">
+          {/* Fallback gradient shown until frames load */}
+          {!isLoaded && (
+            <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-[#0A0E1A] to-[#1E40AF]/20" />
+          )}
+          {/* Native img tag for perfect object-fit cover and native hardware acceleration */}
+          <img 
+            ref={imgRef}
+            className="w-full h-full object-cover object-[center_15%] mix-blend-screen opacity-30 md:opacity-100"
+            alt="Cinematic Scroll Sequence"
+          />
+          {/* Fade mask for mobile/desktop seamless blending */}
+          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#0A0E1A] via-[#0A0E1A]/80 md:via-transparent to-transparent pointer-events-none" />
+        </div>
+
         {/* Scroll-cue chevron */}
         <motion.div 
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 z-20"
           style={{ opacity: chevronOpacity }}
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
