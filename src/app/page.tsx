@@ -46,11 +46,11 @@ export default async function Home() {
 
 
   const fallbackProjects = [
-    { id: '1', title: "Hamdard Enterprises", category: "Web App", tech: "Next.js, Node.js", link: "https://hamdardenterprises.vercel.app/", imageUrl: "/hamdard.png", description: "Engineered and deployed a production-grade enterprise web application with fully fluid mobile layout and sub-second page performance." },
-    { id: '2', title: "Interactive 3D Human Body Explorer", category: "3D & Interactive", tech: "WebGL, Three.js", link: null, imageUrl: null, description: "Architected an interactive 3D anatomy visualization tool with real-time rotation, zoom, and structure inspection." },
-    { id: '3', title: "Ferrari - Luxury Interactive Web Experience", category: "Frontend UI", tech: "Framer Motion", link: null, imageUrl: null, description: "Designed a high-end vehicle showcase inspired by minimalist Apple and Ferrari digital aesthetics." },
-    { id: '4', title: "Neurosurgeon Practice & Medical Portfolio", category: "Healthcare Tech", tech: "MERN stack", link: null, imageUrl: null, description: "Developed a custom healthcare web application with dynamic patient consultation forms." },
-    { id: '5', title: "Lost & Found Campus Management System", category: "Database Systems", tech: "PHP, MySQL", link: null, imageUrl: null, description: "Built a centralized campus registry with secure authentication, role-based access, and CRUD operations." },
+    { id: '1', title: "Interactive 3D Human Body Explorer", category: "3D & Interactive", tech: "WebGL, Three.js", link: null, imageUrl: null, description: "Architected an interactive 3D anatomy visualization tool with real-time rotation, zoom, and structure inspection." },
+    { id: '2', title: "Ferrari Digital Experience", category: "Frontend UI", tech: "Framer Motion", link: null, imageUrl: null, description: "Designed a high-end vehicle showcase inspired by minimalist Apple and Ferrari digital aesthetics." },
+    { id: '3', title: "Neurosurgeon Medical Portfolio", category: "Healthcare Tech", tech: "React, Node.js", link: null, imageUrl: null, description: "Developed a custom healthcare web application with dynamic patient consultation forms." },
+    { id: '4', title: "Campus Management System", category: "Database Systems", tech: "PHP, MySQL", link: null, imageUrl: null, description: "Built a centralized campus registry with secure authentication, role-based access, and CRUD operations." },
+    { id: '5', title: "Hamdard", category: "Web App", tech: "Next.js, Node.js", link: "https://hamdardenterprises.vercel.app/", imageUrl: "/hamdard.png", description: "Engineered and deployed a production-grade enterprise web application with fully fluid mobile layout and sub-second page performance." },
   ];
 
   const projects = mongoProjects.length > 0 ? mongoProjects : fallbackProjects;

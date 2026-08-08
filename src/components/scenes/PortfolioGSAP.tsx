@@ -117,7 +117,15 @@ export default function PortfolioGSAP({ projects = portfolioData }: { projects?:
       }
     })
 
-    return () => mm.revert()
+    // Timeout to ensure DOM is fully painted before refresh
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh()
+    }, 100)
+
+    return () => {
+      mm.revert()
+      clearTimeout(timer)
+    }
   }, [])
 
   return (
@@ -131,7 +139,7 @@ export default function PortfolioGSAP({ projects = portfolioData }: { projects?:
         ))}
       </div>
 
-      <div ref={trackRef} className="flex h-full w-[500%]">
+      <div ref={trackRef} className="flex h-full" style={{ width: `${projects.length * 100}%` }}>
         {projects.map((project, i) => (
           <div 
             key={project.id} 

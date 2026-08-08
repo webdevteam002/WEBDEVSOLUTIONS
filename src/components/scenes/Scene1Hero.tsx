@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
+import { motion, useScroll, useTransform, useReducedMotion, useMotionValueEvent } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { Shard } from '@/components/ui/Shard'
 
@@ -23,6 +23,7 @@ export function Scene1Hero() {
   const [images, setImages] = useState<HTMLImageElement[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const lastDrawnIndex = useRef(-1)
 
   // Determine mobile status
   useEffect(() => {
@@ -35,7 +36,6 @@ export function Scene1Hero() {
   // Preload frames
   useEffect(() => {
     if (shouldReduceMotion) {
-      // Just load the first frame for reduced motion
       const img = new Image()
       img.src = '/hero-frames/frame_001.webp'
       img.onload = () => {
@@ -49,99 +49,93 @@ export function Scene1Hero() {
     const loadedImages: HTMLImageElement[] = []
     let loadedCount = 0
 
-    // Mobile loads every 3rd frame (27 frames)
     const step = isMobile ? 3 : 1
     const totalToLoad = Math.ceil(frameCount / step)
 
     for (let i = 1; i <= frameCount; i += step) {
       const img = new Image()
       img.src = `/hero-frames/frame_${i.toString().padStart(3, '0')}.webp`
+      const arrayIndex = Math.floor((i - 1) / step)
+      loadedImages[arrayIndex] = img
+
       img.onload = () => {
         loadedCount++
         if (loadedCount === totalToLoad) {
+          setImages(loadedImages)
           setIsLoaded(true)
         }
       }
-      // Keep them in order
-      const arrayIndex = Math.floor((i - 1) / step)
-      loadedImages[arrayIndex] = img
     }
-    
-    setImages(loadedImages)
   }, [isMobile, shouldReduceMotion])
 
-  // Canvas scrub rendering
-  useEffect(() => {
+  const drawFrame = (index: number) => {
     const canvas = canvasRef.current
-    if (!canvas || !isLoaded || images.length === 0) return
+    if (!canvas || !images[index]) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    let renderFrameId: number
-
-    const render = () => {
-      const dpr = window.devicePixelRatio || 1
-      const rect = canvas.getBoundingClientRect()
-      
+    const dpr = window.devicePixelRatio || 1
+    const rect = canvas.getBoundingClientRect()
+    
+    // Only resize canvas if dimensions actually changed to avoid clearing
+    if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
       canvas.width = rect.width * dpr
       canvas.height = rect.height * dpr
       ctx.scale(dpr, dpr)
+    }
 
-      // Get frame index
-      const progress = scrollYProgress.get()
-      let index = Math.round(progress * (images.length - 1))
-      
-      // Safety check
-      if (index >= images.length) index = images.length - 1
-      if (index < 0) index = 0
+    const img = images[index]
+    const imgRatio = img.width / img.height
+    const canvasRatio = rect.width / rect.height
+    let drawWidth = rect.width
+    let drawHeight = rect.height
+    let offsetX = 0
+    let offsetY = 0
 
-      const img = images[index]
-      if (img) {
-        // Draw image covering canvas (object-fit: cover equivalent)
-        const imgRatio = img.width / img.height
-        const canvasRatio = rect.width / rect.height
-        let drawWidth = rect.width
-        let drawHeight = rect.height
-        let offsetX = 0
-        let offsetY = 0
+    if (imgRatio > canvasRatio) {
+      drawWidth = rect.height * imgRatio
+      offsetX = (rect.width - drawWidth) / 2
+    } else {
+      drawHeight = rect.width / imgRatio
+      offsetY = (rect.height - drawHeight) / 2
+    }
 
-        if (imgRatio > canvasRatio) {
-          drawWidth = rect.height * imgRatio
-          offsetX = (rect.width - drawWidth) / 2
-        } else {
-          drawHeight = rect.width / imgRatio
-          offsetY = (rect.height - drawHeight) / 2
-        }
+    ctx.clearRect(0, 0, rect.width, rect.height)
+    ctx.globalAlpha = 0.35 // 35% opacity as specified
+    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
+  }
 
-        ctx.clearRect(0, 0, rect.width, rect.height)
-        
-        // Add dark overlay via global alpha or just drawing rect
-        ctx.globalAlpha = 0.35 // 35% opacity as specified
-        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
+  // Initial render when loaded
+  useEffect(() => {
+    if (isLoaded && images.length > 0) {
+      lastDrawnIndex.current = 0
+      requestAnimationFrame(() => drawFrame(0))
+    }
+  }, [isLoaded, images])
+
+  // Resize handler
+  useEffect(() => {
+    const handleResize = () => {
+      if (isLoaded && lastDrawnIndex.current >= 0) {
+        requestAnimationFrame(() => drawFrame(lastDrawnIndex.current))
       }
     }
-
-    // Initial render
-    render()
-
-    // Render on scroll using framer motion's onChange
-    const unsubscribe = scrollYProgress.onChange(() => {
-      if (renderFrameId) cancelAnimationFrame(renderFrameId)
-      renderFrameId = requestAnimationFrame(render)
-    })
-
-    const handleResize = () => {
-      if (renderFrameId) cancelAnimationFrame(renderFrameId)
-      renderFrameId = requestAnimationFrame(render)
-    }
     window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [isLoaded])
 
-    return () => {
-      unsubscribe()
-      window.removeEventListener('resize', handleResize)
-      if (renderFrameId) cancelAnimationFrame(renderFrameId)
+  // Render loop mapped to scroll progress
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (!isLoaded || images.length === 0) return
+    let index = Math.round(latest * (images.length - 1))
+    if (index >= images.length) index = images.length - 1
+    if (index < 0) index = 0
+
+    if (index !== lastDrawnIndex.current) {
+      lastDrawnIndex.current = index
+      requestAnimationFrame(() => drawFrame(index))
     }
-  }, [images, isLoaded, scrollYProgress])
+  })
 
   // Headline divergences
   // Line 1: drifts left+up
@@ -175,91 +169,94 @@ export function Scene1Hero() {
   }
 
   return (
-    <section ref={containerRef} className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#0A0E1A]">
-      
-      {/* Scroll-scrubbed Canvas */}
-      <canvas 
-        ref={canvasRef}
-        className="absolute inset-0 z-0 w-full h-full"
-      />
-      
-      {/* Loading Fallback */}
-      {!isLoaded && (
-        <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0A0E1A] to-[#1E40AF]/20 opacity-30" />
-      )}
+    <section ref={containerRef} className="relative h-[200vh] w-full bg-[#0A0E1A]">
+      <div className="sticky top-0 left-0 w-full h-screen overflow-hidden">
+        {/* Scroll-scrubbed Canvas */}
+        <canvas 
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
+        
+        {/* Loading Fallback */}
+        {!isLoaded && (
+          <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0A0E1A] to-[#1E40AF]/20 opacity-30" />
+        )}
 
-      {/* Shard 1 */}
-      {!shouldReduceMotion && (
+        {/* Shard 1 overlay */}
+        {!shouldReduceMotion && (
+          <motion.div 
+            className="absolute left-[15%] top-[20%] pointer-events-none z-0"
+            style={{ y: shard1Y }}
+          >
+            <Shard shardId={1} className="w-24 h-24 opacity-60" />
+          </motion.div>
+        )}
+
+        {/* Center: Kinetic Text Content */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 pointer-events-none z-10">
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            transition={{ staggerChildren: 0.1, delayChildren: 0.2 }}
+            className="w-full flex flex-col items-center justify-center"
+          >
+            <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold text-center tracking-tighter leading-[1.1] drop-shadow-2xl flex flex-col items-center">
+              
+              <motion.div 
+                className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2"
+                style={!isMobile && !shouldReduceMotion ? { x: line1X, y: line1Y, opacity: line1Opacity } : { y: mobileDriftY, opacity: mobileOpacity }}
+              >
+                {words1.map((word, i) => (
+                  <span key={i} className="overflow-hidden inline-block pb-2">
+                    <motion.span variants={wordVariants} className="inline-block text-white">
+                      {word}
+                    </motion.span>
+                  </span>
+                ))}
+              </motion.div>
+
+              <motion.div 
+                className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2 origin-center"
+                style={!isMobile && !shouldReduceMotion ? { scale: line2Scale, opacity: line2Opacity } : { y: mobileDriftY, opacity: mobileOpacity }}
+              >
+                {words2.map((word, i) => (
+                  <span key={i} className="overflow-hidden inline-block pb-2">
+                    <motion.span variants={wordVariants} className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">
+                      {word}
+                    </motion.span>
+                  </span>
+                ))}
+              </motion.div>
+
+              <motion.div 
+                className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2"
+                style={!isMobile && !shouldReduceMotion ? { x: line3X, y: line3Y } : { y: mobileDriftY, opacity: mobileOpacity }}
+              >
+                {words3.map((word, i) => (
+                  <span key={i} className="overflow-hidden inline-block pb-2">
+                    <motion.span variants={wordVariants} className="inline-block text-white">
+                      {word}
+                    </motion.span>
+                  </span>
+                ))}
+              </motion.div>
+
+            </h1>
+          </motion.div>
+        </div>
+        
+        {/* Scroll-cue chevron */}
         <motion.div 
-          className="absolute left-[15%] top-[20%] z-0"
-          style={{ y: shard1Y }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 z-10"
+          style={{ opacity: useTransform(scrollYProgress, [0, 0.1], [1, 0]) }}
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 2 }}
         >
-          <Shard shardId={1} className="w-24 h-24 opacity-60" />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
         </motion.div>
-      )}
-
-      {/* Center: Kinetic Text Content */}
-      <motion.div 
-        initial="hidden"
-        animate="visible"
-        transition={{ staggerChildren: 0.1, delayChildren: 0.2 }}
-        className="z-10 w-full flex flex-col items-center justify-center px-4 pointer-events-none"
-      >
-        <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold text-center tracking-tighter leading-[1.1] drop-shadow-2xl flex flex-col items-center">
-          
-          <motion.div 
-            className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2"
-            style={!isMobile && !shouldReduceMotion ? { x: line1X, y: line1Y, opacity: line1Opacity } : { y: mobileDriftY, opacity: mobileOpacity }}
-          >
-            {words1.map((word, i) => (
-              <span key={i} className="overflow-hidden inline-block pb-2">
-                <motion.span variants={wordVariants} className="inline-block text-white">
-                  {word}
-                </motion.span>
-              </span>
-            ))}
-          </motion.div>
-
-          <motion.div 
-            className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2 origin-center"
-            style={!isMobile && !shouldReduceMotion ? { scale: line2Scale, opacity: line2Opacity } : { y: mobileDriftY, opacity: mobileOpacity }}
-          >
-            {words2.map((word, i) => (
-              <span key={i} className="overflow-hidden inline-block pb-2">
-                <motion.span variants={wordVariants} className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">
-                  {word}
-                </motion.span>
-              </span>
-            ))}
-          </motion.div>
-
-          <motion.div 
-            className="flex flex-wrap justify-center gap-x-4 md:gap-x-6 overflow-hidden py-2"
-            style={!isMobile && !shouldReduceMotion ? { x: line3X, y: line3Y } : { y: mobileDriftY, opacity: mobileOpacity }}
-          >
-            {words3.map((word, i) => (
-              <span key={i} className="overflow-hidden inline-block pb-2">
-                <motion.span variants={wordVariants} className="inline-block text-white">
-                  {word}
-                </motion.span>
-              </span>
-            ))}
-          </motion.div>
-
-        </h1>
-      </motion.div>
-      
-      {/* Scroll-cue chevron */}
-      <motion.div 
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-white/50"
-        style={{ opacity: useTransform(scrollYProgress, [0, 0.1], [1, 0]) }}
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 2 }}
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </motion.div>
+      </div>
     </section>
   )
 }

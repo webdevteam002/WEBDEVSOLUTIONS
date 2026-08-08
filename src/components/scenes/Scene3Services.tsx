@@ -174,7 +174,7 @@ export function Scene3Services({ services: _ignored }: { services?: any }) {
         {clusters.map((cluster, cIdx) => (
           <motion.div 
             key={cluster.id}
-            className="absolute left-32 right-0 flex flex-col justify-center"
+            className="absolute inset-0 pl-8 md:pl-48 pr-4 w-full max-w-7xl mx-auto flex flex-col justify-center"
             style={{ x: clustersAnim[cIdx].x, opacity: clustersAnim[cIdx].op }}
           >
             {cIdx === 0 ? (
