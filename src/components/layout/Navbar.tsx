@@ -17,7 +17,7 @@ export function Navbar() {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
-      className="fixed top-0 left-0 w-full z-[100] bg-[#0A0E1A]/70 backdrop-blur-md border-b border-white/10"
+      className="fixed top-0 left-0 w-full z-[100] bg-transparent"
     >
       <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
         {/* Left Column: Logo & Agency Name */}
