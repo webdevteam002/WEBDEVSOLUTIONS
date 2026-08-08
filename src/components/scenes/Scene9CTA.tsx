@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { Shard } from '@/components/ui/Shard'
 
 export function Scene9CTA() {
   const [email, setEmail] = useState('')
@@ -59,18 +58,17 @@ Thanks,
       {/* Centralized completed Hexagon Mark (all 6 shards converged) */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
         <motion.div 
-          className="relative w-96 h-96 opacity-30 md:opacity-50"
+          className="relative w-[500px] h-[500px] md:w-[700px] md:h-[700px] opacity-40 md:opacity-60 md:translate-x-32"
           initial={{ scale: 0.8, filter: 'blur(10px)' }}
           whileInView={{ scale: 1, filter: 'blur(0px)' }}
           transition={{ duration: 1, ease: "easeOut" }}
           viewport={{ once: true }}
         >
-          <Shard shardId={1} className="absolute inset-0 w-full h-full" />
-          <Shard shardId={2} className="absolute inset-0 w-full h-full" />
-          <Shard shardId={3} className="absolute inset-0 w-full h-full" />
-          <Shard shardId={4} className="absolute inset-0 w-full h-full" />
-          <Shard shardId={5} className="absolute inset-0 w-full h-full" />
-          <Shard shardId={6} className="absolute inset-0 w-full h-full" />
+          <img 
+            src="/contact-graphic.png" 
+            alt="WebDev Solutions Contact Graphic" 
+            className="w-full h-full object-contain"
+          />
         </motion.div>
       </div>
 
