@@ -6,17 +6,20 @@ import { useEffect, useRef, useState } from 'react'
 export function Scene1Hero() {
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const imgRef = useRef<HTMLImageElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
   })
   
-  const [images, setImages] = useState<HTMLImageElement[]>([])
-  const [isLoaded, setIsLoaded] = useState(false)
+  const frameCount = 480
+  // Store loaded images in a ref so we don't need to trigger re-renders
+  const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(frameCount).fill(null))
+  const [isFirstFrameLoaded, setIsFirstFrameLoaded] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const lastDrawnIndex = useRef(-1)
+  const currentTargetIndex = useRef(0)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -25,49 +28,126 @@ export function Scene1Hero() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Preload all 480 frames on mount
-  useEffect(() => {
-    const frameCount = 480
-    const loadedImages: HTMLImageElement[] = new Array(frameCount)
-    let loadedCount = 0
-
+  // Draw a specific frame to the canvas
+  const drawFrame = (index: number) => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    
+    // Find the closest loaded frame (could be before or after the target index)
+    let closestFrame = -1
+    let minDistance = Infinity
     for (let i = 0; i < frameCount; i++) {
-      const img = new Image()
-      img.src = `/hero-frames/frame_${(i + 1).toString().padStart(4, '0')}.webp`
-      loadedImages[i] = img
-      img.onload = () => {
-        loadedCount++
-        if (loadedCount === frameCount) {
-          setImages(loadedImages)
-          setIsLoaded(true)
+      if (imagesRef.current[i]) {
+        const dist = Math.abs(i - index)
+        if (dist < minDistance) {
+          minDistance = dist
+          closestFrame = i
         }
       }
-      img.onerror = () => {
-        loadedCount++
-        if (loadedCount === frameCount) {
-          setImages(loadedImages)
-          setIsLoaded(true)
+    }
+    
+    if (closestFrame >= 0 && imagesRef.current[closestFrame]) {
+      const img = imagesRef.current[closestFrame]!
+      
+      if (lastDrawnIndex.current !== closestFrame) {
+        // Set canvas dimensions to match image if not already set
+        if (canvas.width !== img.width || canvas.height !== img.height) {
+          canvas.width = img.width
+          canvas.height = img.height
+        }
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        lastDrawnIndex.current = closestFrame
+      }
+    }
+  }
+
+  // Preload frames using Progressive Stride Loading
+  useEffect(() => {
+    let isCancelled = false
+
+    // Load first frame immediately
+    const img0 = new Image()
+    img0.src = `/hero-frames/frame_0001.webp`
+    img0.onload = () => {
+      if (isCancelled) return
+      imagesRef.current[0] = img0
+      setIsFirstFrameLoaded(true)
+      setTimeout(() => drawFrame(currentTargetIndex.current), 0)
+      
+      // Compute loading order for interlaced effect (Passes: 16, 8, 4, 2, 1)
+      const loadOrder: number[] = []
+      const strides = [16, 8, 4, 2, 1]
+      
+      for (const stride of strides) {
+        for (let i = 1; i < frameCount; i += stride) {
+          if (!loadOrder.includes(i)) {
+            loadOrder.push(i)
+          }
         }
       }
+
+      // Load frames progressively in the computed order
+      let currentOrderIndex = 0
+      
+      const loadNextBatch = () => {
+        if (isCancelled || currentOrderIndex >= loadOrder.length) return
+        
+        // We load in small concurrent batches so we don't block the browser entirely
+        const batchSize = 6
+        let loadedInBatch = 0
+        let toLoad = Math.min(batchSize, loadOrder.length - currentOrderIndex)
+        
+        for (let b = 0; b < toLoad; b++) {
+          const frameIndex = loadOrder[currentOrderIndex++]
+          const img = new Image()
+          img.src = `/hero-frames/frame_${(frameIndex + 1).toString().padStart(4, '0')}.webp`
+          
+          const onComplete = () => {
+            if (isCancelled) return
+            loadedInBatch++
+            if (loadedInBatch === toLoad) {
+              loadNextBatch()
+            }
+          }
+          
+          img.onload = () => {
+            if (isCancelled) return
+            imagesRef.current[frameIndex] = img
+            // Redraw if this newly loaded frame is closer to the user's current scroll position
+            const currentTarget = currentTargetIndex.current
+            const distToNew = Math.abs(frameIndex - currentTarget)
+            const distToCurrent = Math.abs(lastDrawnIndex.current - currentTarget)
+            if (distToNew < distToCurrent) {
+               drawFrame(currentTarget)
+            }
+            onComplete()
+          }
+          
+          img.onerror = onComplete
+        }
+      }
+
+      loadNextBatch()
+    }
+
+    return () => {
+      isCancelled = true
     }
   }, [])
 
-  // Initial render when loaded
-  useEffect(() => {
-    if (isLoaded && images.length > 0 && imgRef.current) {
-      lastDrawnIndex.current = 0
-      imgRef.current.src = images[0].src
-    }
-  }, [isLoaded, images])
-
   // Scroll-scrub: useMotionValueEvent to map scroll progress to frame index
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (!isLoaded || images.length === 0 || !imgRef.current) return
-    const frameIndex = Math.min(479, Math.max(0, Math.round(latest * 479)))
-
-    if (frameIndex !== lastDrawnIndex.current) {
-      lastDrawnIndex.current = frameIndex
-      imgRef.current.src = images[frameIndex].src
+    if (!isFirstFrameLoaded) return
+    const frameIndex = Math.min(frameCount - 1, Math.max(0, Math.round(latest * (frameCount - 1))))
+    
+    if (frameIndex !== currentTargetIndex.current) {
+      currentTargetIndex.current = frameIndex
+      // Use requestAnimationFrame for smoother rendering
+      requestAnimationFrame(() => drawFrame(frameIndex))
     }
   })
 
@@ -112,15 +192,14 @@ export function Scene1Hero() {
 
         {/* Right Column: Animated Frames */}
         <div className="absolute inset-0 md:relative md:w-1/2 h-full z-0 pointer-events-none">
-          {/* Fallback gradient shown until frames load */}
-          {!isLoaded && (
+          {/* Fallback gradient shown until first frame loads */}
+          {!isFirstFrameLoaded && (
             <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-[#0A0E1A] to-[#1E40AF]/20" />
           )}
-          {/* Native img tag for perfect object-fit cover and native hardware acceleration */}
-          <img 
-            ref={imgRef}
-            className="w-full h-full object-cover object-[center_15%] mix-blend-screen opacity-30 md:opacity-100"
-            alt="Cinematic Scroll Sequence"
+          {/* Canvas for 60fps hardware accelerated rendering */}
+          <canvas 
+            ref={canvasRef}
+            className={`w-full h-full object-cover object-[center_15%] mix-blend-screen transition-opacity duration-500 ${isFirstFrameLoaded ? 'opacity-30 md:opacity-100' : 'opacity-0'}`}
           />
           {/* Fade mask for mobile/desktop seamless blending */}
           <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#0A0E1A] via-[#0A0E1A]/80 md:via-transparent to-transparent pointer-events-none" />
@@ -141,3 +220,4 @@ export function Scene1Hero() {
     </div>
   )
 }
+
