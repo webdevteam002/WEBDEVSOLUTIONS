@@ -135,138 +135,23 @@ function MobileServices() {
 }
 
 function DesktopServices() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const triggerRef = useRef<HTMLDivElement>(null)
-  
-  useGSAP(() => {
-    // Ensure plugins are registered inside the client-side hook context
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Total pin scroll distance: 1000vh (100vh per card, 10 cards total)
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: triggerRef.current,
-        start: "top top",
-        end: "+=1000%",
-        scrub: 1,
-        pin: true,
-        anticipatePin: 1,
-        // invalidateOnRefresh ensures values like "+=1000%" are recalculated if window resizes
-        invalidateOnRefresh: true 
-      }
-    });
-
-    // Force a ScrollTrigger refresh after a tiny delay to ensure all DOM elements
-    // (and their dynamically loaded images/fonts) have settled their heights,
-    // which prevents the pin from releasing early due to miscalculated end markers.
-    const refreshTimer = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 200);
-
-    let currentTime = 0;
-
-    clusters.forEach((cluster, cIdx) => {
-      const clusterEl = document.querySelector(`.cluster-${cIdx}`);
-      const cards = gsap.utils.toArray(`.cluster-${cIdx} .service-card`) as HTMLElement[];
-      const numCards = cluster.services.length;
-
-      cards.forEach((card, cardIdx) => {
-        const isActiveTimeStart = currentTime + cardIdx;
-        const isActiveTimeEnd = isActiveTimeStart + 1;
-
-        // Future -> Active (Slide to front)
-        if (cardIdx > 0) {
-          tl.to(card, {
-            y: 0,
-            scale: 1,
-            opacity: 1,
-            duration: 0.2,
-            ease: "power2.out"
-          }, isActiveTimeStart - 0.2);
-        }
-
-        // Active -> Past (Slide up and fade out)
-        // We do this for all cards except the last one of the cluster, 
-        // which stays active and rides the horizontal cluster swap transition.
-        if (cardIdx < numCards - 1) {
-          tl.to(card, {
-            y: -100,
-            opacity: 0,
-            scale: 0.95,
-            duration: 0.2,
-            ease: "power2.in"
-          }, isActiveTimeEnd - 0.2);
-        }
-      });
-
-      // Horizontal Swap Out - Takes the last 0.4 (40vh) of this cluster's time
-      const isLastCluster = cIdx === clusters.length - 1;
-      const clusterEndTime = currentTime + numCards;
-
-      if (!isLastCluster) {
-        const nextClusterEl = document.querySelector(`.cluster-${cIdx + 1}`);
-        
-        // Active cluster slides out left
-        tl.to(clusterEl, {
-          x: "-100vw",
-          opacity: 0,
-          ease: "power2.inOut",
-          duration: 0.4
-        }, clusterEndTime - 0.4); 
-        
-        // Next cluster slides in from right
-        tl.fromTo(nextClusterEl, {
-          x: "100vw",
-          opacity: 0
-        }, {
-          x: "0vw",
-          opacity: 1,
-          ease: "power2.inOut",
-          duration: 0.4
-        }, clusterEndTime - 0.4);
-      }
-
-      currentTime += numCards;
-    });
-
-    // Spin shard continuously
-    gsap.to(".shard-fragment", {
-      rotation: 360,
-      duration: 30,
-      repeat: -1,
-      ease: "linear"
-    });
-
-    return () => clearTimeout(refreshTimer);
-  }, { scope: containerRef });
-
   return (
-    <section id="services" ref={triggerRef} className="h-screen w-full bg-[#0A0E1A] overflow-hidden relative shrink-0">
-      <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
+    <section id="services" className="w-full bg-[#0A0E1A] py-32">
+      <div className="w-full flex flex-col gap-32 items-center justify-center">
         
-        {/* Shard Assembly Motif */}
-        <div className="shard-fragment absolute top-[20%] left-[40%] opacity-20 pointer-events-none z-0">
-           <Shard shardId={3} className="w-[800px] h-[800px] blur-[3px]" />
-        </div>
-
         {clusters.map((cluster, cIdx) => (
           <div 
             key={cluster.id} 
-            className={`cluster-${cIdx} absolute inset-0 w-full h-full flex items-center px-8 md:pl-48 md:pr-12 max-w-7xl mx-auto z-10`}
-            style={{ 
-               transform: cIdx === 0 ? "translateX(0)" : "translateX(100vw)",
-               opacity: cIdx === 0 ? 1 : 0
-            }}
+            className="w-full flex items-start px-8 md:pl-48 md:pr-12 max-w-7xl mx-auto"
           >
             {/* Left 1/3: Premium Editorial Title */}
-            <div className="w-1/3 flex flex-col justify-center h-full pr-8">
+            <div className="w-1/3 flex flex-col justify-start pr-8 sticky top-32">
               {cIdx === 0 ? (
-                <motion.h2 
-                  layoutId="we-build-differently"
+                <h2 
                   className="text-[80px] lg:text-[120px] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue leading-none"
                 >
                   {cluster.name}
-                </motion.h2>
+                </h2>
               ) : (
                 <h2 className="text-[80px] lg:text-[120px] font-bold tracking-tight text-white leading-none">
                   {cluster.name}
@@ -274,22 +159,11 @@ function DesktopServices() {
               )}
             </div>
 
-            {/* Right 2/3: Tactile Card Group */}
-            <div className="w-2/3 h-full relative flex items-center justify-center">
-              <div className="relative w-full max-w-[400px] flex justify-center items-center h-full">
+            {/* Right 2/3: Tactile Card Group (Static Stack) */}
+            <div className="w-2/3 flex flex-col gap-8 items-center justify-center">
+              <div className="w-full max-w-[400px] flex flex-col gap-8">
                 {cluster.services.map((service, idx) => (
-                  <div 
-                    key={service.id} 
-                    className="service-card absolute w-full"
-                    style={{ 
-                      // Initial setup: first card is active, others are stacked behind
-                      transform: idx === 0 
-                        ? `translateY(0px) scale(1)` 
-                        : `translateY(${idx * 20}px) scale(${1 - idx * 0.05})`,
-                      opacity: idx === 0 ? 1 : 0.4,
-                      zIndex: 10 - idx
-                    }}
-                  >
+                  <div key={service.id} className="w-full">
                     <ServiceCardItem service={service} index={idx} isMobile={false} />
                   </div>
                 ))}
