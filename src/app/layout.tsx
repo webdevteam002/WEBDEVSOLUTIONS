@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { SmoothScrollProvider } from '@/components/providers/SmoothScrollProvider'
-import { CursorProvider } from '@/components/providers/CursorProvider'
 import Background3D from '@/components/3d/Background3D'
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -22,10 +21,8 @@ export default function RootLayout({
     <html lang="en" className={cn("dark bg-brand-navy text-brand-silver", "font-sans", geist.variable)} suppressHydrationWarning>
       <body className="antialiased overflow-x-hidden" suppressHydrationWarning>
         <SmoothScrollProvider>
-          <CursorProvider>
-            <Background3D />
-            {children}
-          </CursorProvider>
+          <Background3D />
+          {children}
         </SmoothScrollProvider>
       </body>
     </html>
