@@ -29,15 +29,28 @@ export default async function Home() {
     await connectToDatabase()
     const dbProjects = await Project.find({}).sort({ createdAt: -1 }).lean()
     if (dbProjects.length > 0) {
-      portfolioProjects = dbProjects.map(p => ({
-        id: p._id.toString(),
-        title: p.title,
-        category: p.category,
-        description: p.description,
-        tech: p.techStack || [],
-        link: p.link || null,
-        imageFallback: p.imageUrl === '/logo-parts/pixels.webp' ? '/hamdard.png' : (p.imageUrl || "/hamdard.png"),
-      }))
+      portfolioProjects = dbProjects.map(p => {
+        let customImage = p.imageUrl === '/logo-parts/pixels.webp' ? '/hamdard.png' : (p.imageUrl || "/hamdard.png");
+        
+        // Force the new local mockups based on title
+        if (p.title === "Interactive 3D Human Body Explorer") {
+          customImage = "/Website_mockup_of_human_anatomy_202608091844.jpeg";
+        } else if (p.title === "Ferrari Digital Experience") {
+          customImage = "/Ferrari_website_mockup_design_2K_202608091840.jpeg";
+        } else if (p.title === "Neurosurgeon Medical Portfolio") {
+          customImage = "/Medical_portfolio_website_mockup…_2K_202608091839.jpeg";
+        }
+
+        return {
+          id: p._id.toString(),
+          title: p.title,
+          category: p.category,
+          description: p.description,
+          tech: p.techStack || [],
+          link: p.link || null,
+          imageFallback: customImage,
+        };
+      })
     }
   } catch (error) {
     console.warn('Failed to fetch projects from MongoDB:', error)
