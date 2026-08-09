@@ -38,7 +38,7 @@ export default async function Home() {
           category: p.category,
           description: p.description,
           tech: p.techStack || [],
-          link: p.link || null,
+          link: (p.title.toLowerCase().includes('hamdard') ? "https://www.webdevsolutions.online" : null) || p.link || null,
           imageFallback: customImage,
         };
       })
