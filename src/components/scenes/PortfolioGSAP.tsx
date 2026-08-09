@@ -1,11 +1,7 @@
 'use client'
 
-import React, { useRef, useEffect } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import React from 'react'
 import Image from 'next/image'
-
-gsap.registerPlugin(ScrollTrigger)
 
 export interface ProjectData {
   id: string;
@@ -18,88 +14,12 @@ export interface ProjectData {
 }
 
 export default function PortfolioGSAP({ projects }: { projects: ProjectData[] }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
-  const panelsRef = useRef<(HTMLDivElement | null)[]>([])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (window.innerWidth < 768) return
-    if (!containerRef.current || !trackRef.current) return
-
-    const ctx = gsap.context(() => {
-      const totalPanels = projects.length
-
-      // Horizontal scroll animation
-      gsap.to(trackRef.current, {
-        x: () => -(trackRef.current!.scrollWidth - window.innerWidth),
-        ease: "none",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top top",
-          end: () => `+=${trackRef.current!.scrollWidth - window.innerWidth}`,
-          pin: true,
-          scrub: 1,
-          invalidateOnRefresh: true,
-        }
-      })
-
-      // Per-panel image/content animations
-      panelsRef.current.forEach((panel, i) => {
-        if (!panel) return
-        const img = panel.querySelector('.portfolio-img')
-        const content = panel.querySelector('.portfolio-content')
-        
-        if (img && i > 0) {
-          gsap.fromTo(img, 
-            { scale: 0.8, filter: 'blur(10px)' },
-            { 
-              scale: 1, 
-              filter: 'blur(0px)',
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: containerRef.current,
-                start: `top+=${(100 / totalPanels) * (i - 0.5)}% top`,
-                end: `top+=${(100 / totalPanels) * i}% top`,
-                scrub: 1
-              }
-            }
-          )
-        }
-        
-        if (content && i > 0) {
-          gsap.from(content, {
-            opacity: 0,
-            y: 50,
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: `top+=${(100 / totalPanels) * (i - 0.3)}% top`,
-              end: `top+=${(100 / totalPanels) * i}% top`,
-              scrub: 1
-            }
-          })
-        }
-      })
-    }, containerRef)
-
-    // GSAP lifecycle fix: refresh after Framer Motion finishes layout
-    const timer = setTimeout(() => {
-      ScrollTrigger.refresh()
-    }, 500)
-
-    return () => {
-      ctx.revert()
-      clearTimeout(timer)
-    }
-  }, [projects.length])
-
   return (
-    <div ref={containerRef} className="relative w-full bg-[#0A0E1A] hidden md:block">
-      <div ref={trackRef} className="flex h-screen" style={{ width: `${projects.length * 100}vw` }}>
-        {projects.map((project, i) => (
+    <div className="relative w-full bg-[#0A0E1A] hidden md:block overflow-x-auto">
+      <div className="flex h-screen" style={{ width: `${projects.length * 100}vw` }}>
+        {projects.map((project) => (
           <div 
             key={project.id} 
-            ref={el => { panelsRef.current[i] = el }}
             className="h-full flex items-center justify-center px-16 py-12 shrink-0"
             style={{ width: '100vw' }}
           >
@@ -145,3 +65,4 @@ export default function PortfolioGSAP({ projects }: { projects: ProjectData[] })
     </div>
   )
 }
+

@@ -33,10 +33,10 @@ export default async function Home() {
         id: p._id.toString(),
         title: p.title,
         category: p.category,
-        description: "A custom project developed for our client.",
-        tech: p.techStack,
-        link: null,
-        imageFallback: p.imageUrl || "/hamdard.png",
+        description: p.description,
+        tech: p.techStack || [],
+        link: p.link || null,
+        imageFallback: p.imageUrl === '/logo-parts/pixels.webp' ? '/hamdard.png' : (p.imageUrl || "/hamdard.png"),
       }))
     }
   } catch (error) {
