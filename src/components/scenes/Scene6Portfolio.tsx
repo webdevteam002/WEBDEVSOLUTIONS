@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 
 // Disable SSR for GSAP to avoid hydration mismatches
 const PortfolioGSAP = dynamic(() => import('./PortfolioGSAP'), { ssr: false })
@@ -37,7 +36,7 @@ export function Scene6Portfolio({ projects }: { projects: ProjectData[] }) {
     return <PortfolioGSAP projects={projects} />
   }
 
-  // Mobile uses native CSS scroll-snap with Framer Motion crossfades
+  // Mobile uses native CSS scroll-snap
   return (
     <section id="projects" className="relative bg-[#0A0E1A] py-24 border-y border-white/5">
       <div className="px-6 mb-8">
@@ -45,15 +44,8 @@ export function Scene6Portfolio({ projects }: { projects: ProjectData[] }) {
       </div>
       
       <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar w-full px-6 gap-6 pb-8">
-        {projects.map((project, i) => (
-          <motion.div 
-            key={project.id} 
-            initial={{ opacity: 0.3 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ amount: 0.6, margin: "0px" }}
-            transition={{ duration: 0.5 }}
-            className="w-[85vw] shrink-0 snap-center flex flex-col gap-6"
-          >
+        {projects.map((project) => (
+          <div key={project.id} className="w-[85vw] shrink-0 snap-center flex flex-col gap-6">
             <div className="w-full h-[40vh] rounded-2xl overflow-hidden relative border border-white/10">
               {project.imageFallback ? (
                 <Image src={project.imageFallback} alt={project.title} fill className="object-cover" />
@@ -65,7 +57,7 @@ export function Scene6Portfolio({ projects }: { projects: ProjectData[] }) {
             </div>
             
             <div className="flex flex-col gap-4">
-              <span className="text-brand-cyan font-mono text-xs">0{i + 1} — {project.category}</span>
+              <span className="text-brand-cyan font-mono text-xs">{project.category}</span>
               <h3 className="text-2xl font-bold text-white leading-tight">{project.title}</h3>
               <p className="text-[#C9CDD6] text-sm leading-relaxed">{project.description}</p>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -86,7 +78,7 @@ export function Scene6Portfolio({ projects }: { projects: ProjectData[] }) {
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </section>
