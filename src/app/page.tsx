@@ -33,13 +33,14 @@ export default async function Home() {
         let customImage = p.imageUrl === '/logo-parts/pixels.webp' ? '/hamdard.png' : (p.imageUrl || "/hamdard.png");
         
         // Force the new local mockups based on title
-        if (p.title === "Interactive 3D Human Body Explorer") {
+        const t = p.title.toLowerCase();
+        if (t.includes("human body")) {
           customImage = "/human body explorer.jpeg";
-        } else if (p.title === "Ferrari Digital Experience") {
+        } else if (t.includes("ferrari")) {
           customImage = "/Ferrari luxury.jpeg";
-        } else if (p.title === "Neurosurgeon Medical Portfolio") {
+        } else if (t.includes("neurosurgeon")) {
           customImage = "/neuro surgeon.jpeg";
-        } else if (p.title === "Campus Management System") {
+        } else if (t.includes("campus") || t.includes("lost and found")) {
           customImage = "/lost and found management system.jpeg";
         }
 
