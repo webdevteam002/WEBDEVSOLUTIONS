@@ -150,14 +150,18 @@ export function Scene5TechStack() {
   })
 
   const [isMobile, setIsMobile] = useState(false)
-  const shouldReduceMotion = useReducedMotion()
+  const [isMounted, setIsMounted] = useState(false)
+  const systemReduceMotion = useReducedMotion()
 
   useEffect(() => {
+    setIsMounted(true)
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  const shouldReduceMotion = isMounted ? systemReduceMotion : false
 
   // Convergence compression
   const gap = useTransform(convergenceProgress, [0, 1], ["4rem", "0rem"])
@@ -170,7 +174,12 @@ export function Scene5TechStack() {
     >
       <motion.div 
         className="flex flex-col justify-center relative w-full"
-        style={!shouldReduceMotion ? { gap, opacity } : {}}
+        style={!shouldReduceMotion ? { 
+          gap, 
+          opacity,
+          maskImage: 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)'
+        } : {}}
       >
         {shouldReduceMotion ? (
            <StaticTechGrid />
