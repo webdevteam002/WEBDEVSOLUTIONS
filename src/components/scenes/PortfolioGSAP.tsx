@@ -114,12 +114,12 @@ export default function PortfolioGSAP({ projects }: { projects: ProjectData[] })
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col">
         
         {/* Persistent Category Filter Chips */}
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-50 flex gap-4 bg-[#0A0E1A]/80 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-2xl">
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 flex gap-4 bg-[#0A0E1A]/80 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-2xl">
           {categories.map(cat => (
             <button 
               key={cat}
               onClick={() => handleCategoryClick(cat)}
-              className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
+              className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 whitespace-nowrap ${
                 activeCategory === cat 
                   ? 'bg-brand-cyan text-black scale-105' 
                   : 'text-white/60 hover:text-white hover:bg-white/10'
@@ -136,7 +136,7 @@ export default function PortfolioGSAP({ projects }: { projects: ProjectData[] })
             <div 
               key={project.id} 
               ref={el => { panelsRef.current[i] = el }}
-              className="h-full flex items-center justify-center px-16 py-12 shrink-0"
+              className="h-full flex items-center justify-center px-16 pt-40 pb-12 shrink-0"
               style={{ width: '100vw' }}
             >
             <div className="w-full max-w-6xl mx-auto flex items-center gap-12 relative">
