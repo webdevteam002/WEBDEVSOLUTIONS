@@ -33,7 +33,7 @@ function FAQCard({
   openIdx: number | null
   setOpenIdx: (val: number | null) => void
   totalFaqs: number
-  containerRef: RefObject<HTMLElement>
+  containerRef: RefObject<HTMLElement | null>
 }) {
   const lenis = useLenis()
   const deckIndex = useTransform(deckProgress, [0, 1], [0, totalFaqs - 1])
