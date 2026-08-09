@@ -9,38 +9,55 @@ const techs = [
   "PostgreSQL", "Sanity.io", "AWS", "Vercel"
 ]
 
+function StaticTechGrid() {
+  return (
+    <div className="flex flex-wrap justify-center gap-4 md:gap-6 px-6 max-w-5xl mx-auto z-10 relative">
+      {techs.map(tech => (
+        <div 
+          key={tech} 
+          className="px-6 py-3 md:px-8 md:py-4 rounded-full bg-[#0F172A]/80 backdrop-blur-md border border-white/10 text-white/80 text-lg md:text-2xl font-bold whitespace-nowrap shadow-lg transition-colors hover:border-brand-cyan/50 hover:text-white"
+        >
+          {tech}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function MarqueeRow({ 
   items, 
   direction, 
   baseVelocity,
-  scrollVelocity
+  scrollVelocity,
+  isBackRow = false
 }: { 
   items: string[], 
   direction: 1 | -1, 
   baseVelocity: number,
-  scrollVelocity: any
+  scrollVelocity: any,
+  isBackRow?: boolean
 }) {
   const baseX = useRef(0)
   const containerRef = useRef<HTMLDivElement>(null)
-  
-  // To handle the center-scale effect efficiently
-  const itemRefs = useRef<(HTMLSpanElement | null)[]>([])
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useAnimationFrame((t, delta) => {
     if (!containerRef.current) return
 
-    // Calculate dynamic velocity
+    // Calculate dynamic velocity: base speed + scroll-induced momentum
     let moveBy = direction * baseVelocity * (delta / 1000)
     
-    // Add scroll velocity factor
-    if (scrollVelocity.get() !== 0) {
-      moveBy += direction * scrollVelocity.get() * (delta / 1000) * 0.05
+    const currentVelocity = scrollVelocity.get()
+    if (currentVelocity !== 0) {
+      // Multiply by direction so it always speeds up the current heading
+      // Or we can let scroll direction push it? Let's just use raw velocity 
+      // but bound it to direction so scrolling down always accelerates it forward
+      moveBy += direction * Math.abs(currentVelocity) * (delta / 1000) * 0.05
     }
 
     baseX.current += moveBy
 
-    // Loop logic (approximate assuming 2 sets of items)
-    // We wrap around when we've moved past 50%
+    // Seamless loop wraparound (width is 200%, so wrapping at 50%)
     if (direction === -1 && baseX.current <= -50) {
       baseX.current = 0
     } else if (direction === 1 && baseX.current >= 0) {
@@ -49,7 +66,7 @@ function MarqueeRow({
 
     containerRef.current.style.transform = `translateX(${baseX.current}%)`
 
-    // Center scale effect calculation
+    // Center Focus / Bloom effect
     const center = window.innerWidth / 2
     itemRefs.current.forEach((el) => {
       if (!el) return
@@ -57,41 +74,56 @@ function MarqueeRow({
       const elCenter = rect.left + rect.width / 2
       const dist = Math.abs(center - elCenter)
       
-      // If within a threshold (e.g., 150px) of center, scale up and brighten
-      if (dist < 200) {
-        const scale = 1 + (1 - dist / 200) * 0.15 // Up to 15% scale
-        const brightness = 1 + (1 - dist / 200) * 0.5
+      // Activation zone: 300px from center
+      if (dist < 300) {
+        const factor = Math.pow(1 - dist / 300, 2) // Non-linear ease for pop
+        const scale = 1 + factor * 0.15 
+        
         el.style.transform = `scale(${scale})`
-        // Add cyan glow to text dynamically via color interpolation or drop shadow
-        el.style.textShadow = `0 0 ${10 * (1 - dist/200)}px rgba(34, 211, 238, ${1 - dist/200})`
-        el.style.color = `rgba(34, 211, 238, ${0.5 + (1 - dist/200)*0.5})`
+        el.style.borderColor = `rgba(34, 211, 238, ${factor * 0.5 + 0.1})`
+        el.style.backgroundColor = `rgba(34, 211, 238, ${factor * 0.15})`
+        el.style.color = `rgba(255, 255, 255, ${factor * 0.4 + 0.6})`
+        el.style.boxShadow = `0 0 ${factor * 40}px rgba(34, 211, 238, ${factor * 0.4})`
+        el.style.zIndex = '10'
       } else {
         el.style.transform = `scale(1)`
-        el.style.textShadow = 'none'
-        el.style.color = 'rgba(255, 255, 255, 0.1)'
+        el.style.borderColor = 'rgba(255, 255, 255, 0.1)'
+        el.style.backgroundColor = 'rgba(15, 23, 42, 0.8)'
+        el.style.color = 'rgba(255, 255, 255, 0.6)'
+        el.style.boxShadow = 'none'
+        el.style.zIndex = '1'
       }
     })
   })
 
-  // Duplicate items for seamless loop
+  // Duplicate for seamless loop
   const allItems = [...items, ...items]
 
   return (
-    <div className="flex whitespace-nowrap overflow-visible">
+    <div className={`flex whitespace-nowrap overflow-visible ${isBackRow ? 'opacity-60 blur-[1.5px] scale-90' : 'opacity-100 z-10'}`}>
       <div 
         ref={containerRef}
-        className="flex gap-16 px-8"
-        style={{ width: '200%' }} // 200% width because we duplicated items
+        className="flex gap-8 md:gap-16 px-4 md:px-8 items-center"
+        style={{ width: '200%' }} 
       >
         {allItems.map((tech, idx) => (
-          <span 
+          <div 
             key={idx} 
             ref={el => { itemRefs.current[idx] = el }}
-            className="text-4xl md:text-6xl font-black transition-colors"
-            style={{ color: 'rgba(255, 255, 255, 0.1)', display: 'inline-block', willChange: 'transform, color, text-shadow' }}
+            className="px-6 py-3 md:px-10 md:py-5 rounded-full border text-xl md:text-3xl font-bold transition-none"
+            style={{ 
+              backgroundColor: 'rgba(15, 23, 42, 0.8)',
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              color: 'rgba(255, 255, 255, 0.6)',
+              backdropFilter: 'blur(12px)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              willChange: 'transform, border-color, background-color, color, box-shadow'
+            }}
           >
             {tech}
-          </span>
+          </div>
         ))}
       </div>
     </div>
@@ -103,12 +135,12 @@ export function Scene5TechStack() {
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start end", "end start"] // track through entire view
+    offset: ["start end", "end start"]
   })
 
   const { scrollYProgress: convergenceProgress } = useScroll({
     target: containerRef,
-    offset: ["end center", "end start"] // When leaving the section, converge
+    offset: ["end center", "end start"]
   })
 
   const scrollVelocity = useVelocity(scrollYProgress)
@@ -127,55 +159,55 @@ export function Scene5TechStack() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Convergence animation values
+  // Convergence compression
   const gap = useTransform(convergenceProgress, [0, 1], ["4rem", "0rem"])
-  const opacity = useTransform(convergenceProgress, [0, 1], [1, 0.2])
+  const opacity = useTransform(convergenceProgress, [0, 1], [1, 0])
   
   return (
     <section 
       ref={containerRef} 
-      className="relative py-32 h-screen max-h-[800px] bg-[#0A0E1A] overflow-hidden flex flex-col justify-center border-y border-brand-cyan/20"
+      className="relative py-32 h-screen max-h-[800px] bg-[#0A0E1A] overflow-hidden flex flex-col justify-center border-t border-white/5"
     >
       <motion.div 
-        className="absolute left-0 right-0 top-0 h-[1px] bg-brand-cyan/50"
-        style={{ scaleX: convergenceProgress, transformOrigin: 'center' }}
-      />
-
-      <motion.div 
-        className="flex flex-col justify-center"
-        style={{ gap, opacity }}
+        className="flex flex-col justify-center relative w-full"
+        style={!shouldReduceMotion ? { gap, opacity } : {}}
       >
-        {/* Row 1: Moves Right (left-to-right) */}
         {shouldReduceMotion ? (
-           <div className="flex gap-8 overflow-hidden text-white/30 text-4xl font-bold px-4">{techs.join(" • ")}</div>
+           <StaticTechGrid />
         ) : (
-           <MarqueeRow 
-             items={techs} 
-             direction={1} 
-             baseVelocity={5} 
-             scrollVelocity={smoothVelocity} 
-           />
-        )}
-
-        {/* Row 2: Moves Left (right-to-left, Hidden on mobile) */}
-        {!isMobile && !shouldReduceMotion && (
-          <MarqueeRow 
-            items={techs.slice().reverse()} 
-            direction={-1} 
-            baseVelocity={7} // slightly different base speed
-            scrollVelocity={smoothVelocity} 
-          />
+           <>
+             {/* Row 2 (Background, reversed array so order feels distinct) */}
+             {!isMobile && (
+               <MarqueeRow 
+                 items={[...techs].reverse()} 
+                 direction={-1} 
+                 baseVelocity={3} 
+                 scrollVelocity={smoothVelocity} 
+                 isBackRow={true}
+               />
+             )}
+             
+             {/* Row 1 (Foreground) */}
+             <MarqueeRow 
+               items={techs} 
+               direction={1} 
+               baseVelocity={6} 
+               scrollVelocity={smoothVelocity} 
+             />
+           </>
         )}
       </motion.div>
       
-      {/* The compressed horizontal band hand-off to Portfolio */}
-      <motion.div 
-        className="absolute bottom-0 left-0 right-0 h-[4px] bg-brand-cyan origin-center"
-        style={{ 
-          scaleX: convergenceProgress,
-          opacity: convergenceProgress 
-        }}
-      />
+      {/* Portfolio convergence band hand-off */}
+      {!shouldReduceMotion && (
+        <motion.div 
+          className="absolute bottom-0 left-0 right-0 h-[4px] bg-brand-cyan origin-center z-50 shadow-[0_0_20px_rgba(34,211,238,0.5)]"
+          style={{ 
+            scaleX: convergenceProgress,
+            opacity: convergenceProgress 
+          }}
+        />
+      )}
     </section>
   )
 }
