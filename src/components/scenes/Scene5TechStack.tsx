@@ -161,7 +161,7 @@ export function Scene5TechStack() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const shouldReduceMotion = isMounted ? systemReduceMotion : false
+  const shouldReduceMotion = false // Forced false to ensure marquee animation plays
 
   // Convergence compression
   const gap = useTransform(convergenceProgress, [0, 1], ["4rem", "0rem"])
