@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
+import { motion, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion'
 
 export function Scene7Proof() {
   const containerRef = useRef<HTMLElement>(null)
@@ -13,25 +13,28 @@ export function Scene7Proof() {
 
   const shouldReduceMotion = useReducedMotion()
 
-  // Typography scale-up
-  const scale2Plus = useTransform(scrollYProgress, [0.3, 0.5], [0.5, 1])
-  const opacity2Plus = useTransform(scrollYProgress, [0.3, 0.5], [0, 1])
+  // Spring physics for smooth scroll-scrubbing
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  })
 
-  // "Years Experience" reveal (opacity via scroll)
-  const opacityYears = useTransform(scrollYProgress, [0.5, 0.7], [0, 1])
-  const xYears = useTransform(scrollYProgress, [0.5, 0.7], [-20, 0])
+  // The Duo Reveal: 0.2 -> 0.5 (Scale up and fade in together)
+  const duoScale = useTransform(smoothProgress, [0.2, 0.5], [0.85, 1])
+  const duoOpacity = useTransform(smoothProgress, [0.2, 0.5], [0, 1])
 
-  // Subtitle fade
-  const opacitySub = useTransform(scrollYProgress, [0.7, 0.8], [0, 1])
+  // The Supporting Copy Reveal: 0.5 -> 0.65
+  const copyOpacity = useTransform(smoothProgress, [0.5, 0.65], [0, 1])
 
-  // Hand-off into FAQ: fade and scale down slightly
-  const exitOpacity = useTransform(scrollYProgress, [0.9, 1], [1, 0.15])
-  const exitScale = useTransform(scrollYProgress, [0.9, 1], [1, 0.95])
+  // Hand-off into FAQ: 0.8 -> 1.0 (Fade to 0.15 depth-swap)
+  const exitOpacity = useTransform(smoothProgress, [0.8, 1], [1, 0.15])
+  const exitScale = useTransform(smoothProgress, [0.8, 1], [1, 0.95])
 
   return (
-    <section ref={containerRef} className="h-[150vh] relative w-full bg-[#0A0E1A] flex flex-col justify-center overflow-hidden">
+    <section ref={containerRef} className="h-[200vh] relative w-full bg-[#0A0E1A] flex flex-col justify-center overflow-hidden">
       <motion.div 
-        className="sticky top-0 h-screen flex flex-col items-center justify-center w-full"
+        className="sticky top-0 h-screen flex flex-col items-center justify-center w-full px-6"
         style={{ 
           opacity: shouldReduceMotion ? 1 : exitOpacity, 
           scale: shouldReduceMotion ? 1 : exitScale 
@@ -40,36 +43,49 @@ export function Scene7Proof() {
         
         {/* Anchor Point (Conceptual hand-off from Portfolio) */}
         <motion.div 
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/5 rounded-lg border border-white/10"
+          className="absolute left-1/2 top-0 -translate-x-1/2 w-[1px] h-32 bg-gradient-to-b from-brand-cyan to-transparent opacity-50"
           style={{
-            opacity: useTransform(scrollYProgress, [0.1, 0.3], [1, 0]),
-            scale: useTransform(scrollYProgress, [0.1, 0.3], [1, 0.5])
+            opacity: useTransform(smoothProgress, [0.0, 0.2], [1, 0]),
+            scaleY: useTransform(smoothProgress, [0.0, 0.2], [1, 0]),
+            transformOrigin: "top"
           }}
         />
 
-        <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-          <motion.div 
-            className="text-8xl md:text-[12rem] lg:text-[16rem] font-bold text-transparent bg-clip-text bg-gradient-to-br from-white to-white/50 leading-none tracking-tighter"
-            style={shouldReduceMotion ? {} : { scale: scale2Plus, opacity: opacity2Plus }}
-          >
-            2+
-          </motion.div>
-          
-          <motion.div 
-            className="flex flex-col"
-            style={shouldReduceMotion ? {} : { opacity: opacityYears, x: xYears }}
-          >
-            <span className="text-4xl md:text-6xl lg:text-7xl font-bold text-white/90">Years</span>
-            <span className="text-4xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">Experience</span>
-          </motion.div>
-        </div>
-
+        {/* The Duo Stats Block */}
         <motion.div 
-          className="mt-16 flex items-center gap-4"
-          style={shouldReduceMotion ? {} : { opacity: opacitySub }}
+          className="flex flex-col md:flex-row items-center md:items-end justify-center gap-16 md:gap-32 relative z-10 w-full max-w-6xl"
+          style={shouldReduceMotion ? {} : { scale: duoScale, opacity: duoOpacity }}
         >
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xl text-[#C9CDD6] font-mono">Currently taking on new projects.</span>
+          {/* Stat 1: Experience */}
+          <div className="flex flex-col items-center">
+            <div className="text-8xl md:text-[10rem] lg:text-[12rem] font-bold text-transparent bg-clip-text bg-gradient-to-br from-white to-white/50 leading-none tracking-tighter drop-shadow-2xl">
+              2+
+            </div>
+            <span className="text-2xl md:text-3xl font-bold text-[#C9CDD6] mt-4 tracking-wide">
+              Years Experience
+            </span>
+          </div>
+
+          {/* Stat 2: Projects */}
+          <div className="flex flex-col items-center">
+            <div className="text-8xl md:text-[10rem] lg:text-[12rem] font-bold text-transparent bg-clip-text bg-gradient-to-br from-white to-white/50 leading-none tracking-tighter drop-shadow-2xl">
+              10+
+            </div>
+            <span className="text-2xl md:text-3xl font-bold text-[#C9CDD6] mt-4 tracking-wide">
+              Projects Delivered
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Supporting Copy CTA */}
+        <motion.div 
+          className="mt-24 flex items-center justify-center gap-4 bg-white/5 backdrop-blur-sm border border-white/10 px-8 py-4 rounded-full shadow-2xl"
+          style={shouldReduceMotion ? {} : { opacity: copyOpacity }}
+        >
+          <div className="w-2.5 h-2.5 rounded-full bg-brand-cyan animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
+          <span className="text-lg md:text-xl text-[#C9CDD6] font-mono tracking-tight">
+            Currently taking on new projects.
+          </span>
         </motion.div>
 
       </motion.div>
