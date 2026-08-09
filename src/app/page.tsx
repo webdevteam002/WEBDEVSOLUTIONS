@@ -32,18 +32,6 @@ export default async function Home() {
       portfolioProjects = dbProjects.map(p => {
         let customImage = p.imageUrl === '/logo-parts/pixels.webp' ? '/hamdard.png' : (p.imageUrl || "/hamdard.png");
         
-        // Force the new local mockups based on title
-        const t = p.title.toLowerCase();
-        if (t.includes("human body")) {
-          customImage = "/human body explorer.jpeg";
-        } else if (t.includes("ferrari")) {
-          customImage = "/Ferrari luxury.jpeg";
-        } else if (t.includes("neurosurgeon")) {
-          customImage = "/neuro surgeon.jpeg";
-        } else if (t.includes("campus") || t.includes("lost and found")) {
-          customImage = "/lost and found management system.jpeg";
-        }
-
         return {
           id: p._id.toString(),
           title: p.title,
