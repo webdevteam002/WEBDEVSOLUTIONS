@@ -51,7 +51,7 @@ export function Scene7Proof() {
   const exitScale = useTransform(smoothProgress, [0.8, 1], [1, 0.95])
 
   return (
-    <section ref={containerRef} className="h-[200vh] relative w-full bg-[#0A0E1A] flex flex-col justify-center overflow-hidden">
+    <section ref={containerRef} className={`relative w-full bg-[#0A0E1A] flex flex-col justify-center overflow-hidden ${isMobile ? 'h-auto' : 'h-[200vh]'}`}>
       
       {/* 1. Ambient Background Depth (Drifting Blobs) */}
       {!shouldReduceMotion && (
@@ -91,7 +91,7 @@ export function Scene7Proof() {
       )}
 
       <motion.div 
-        className="sticky top-0 h-screen flex flex-col items-center justify-center w-full px-6"
+        className={`flex flex-col items-center justify-center w-full px-6 ${isMobile ? 'py-24' : 'sticky top-0 h-screen'}`}
         style={{ 
           opacity: shouldReduceMotion ? 1 : exitOpacity, 
           scale: shouldReduceMotion ? 1 : exitScale 

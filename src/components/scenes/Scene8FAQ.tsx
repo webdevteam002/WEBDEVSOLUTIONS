@@ -176,34 +176,54 @@ export function Scene8FAQ() {
     return (
       <section id="faq" className="py-24 bg-[#0A0E1A]">
         <div className="max-w-3xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-16 text-white">FAQ</h2>
+          <motion.h2
+            className="text-4xl font-bold text-center mb-16 text-white"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
+            FAQ
+          </motion.h2>
           <div className="flex flex-col gap-4">
             {faqs.map((faq, idx) => (
-              <div key={idx} className="bg-[#161B22] border border-white/10 rounded-2xl overflow-hidden">
-                <button 
-                  onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
-                  className="w-full flex items-center justify-between p-6 text-left cursor-pointer"
-                >
-                  <span className="font-medium text-lg text-white">{faq.q}</span>
-                  <motion.div animate={{ rotate: openIdx === idx ? 180 : 0 }}>
-                    <ChevronDown className="w-5 h-5 text-brand-cyan" />
-                  </motion.div>
-                </button>
-                <AnimatePresence>
-                  {openIdx === idx && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="p-6 pt-0 text-[#C9CDD6]">
-                        {faq.a}
-                      </div>
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{
+                  duration: 0.45,
+                  delay: idx * 0.1,
+                  ease: "easeOut"
+                }}
+              >
+                <div className="bg-[#161B22] border border-white/10 rounded-2xl overflow-hidden">
+                  <button 
+                    onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
+                    className="w-full flex items-center justify-between p-6 text-left cursor-pointer"
+                  >
+                    <span className="font-medium text-lg text-white">{faq.q}</span>
+                    <motion.div animate={{ rotate: openIdx === idx ? 180 : 0 }}>
+                      <ChevronDown className="w-5 h-5 text-brand-cyan" />
                     </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                  </button>
+                  <AnimatePresence>
+                    {openIdx === idx && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-6 pt-0 text-[#C9CDD6]">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -219,6 +239,8 @@ export function Scene8FAQ() {
         <h2 className="text-4xl md:text-6xl font-bold text-white mb-16 relative z-50">
           Frequently Asked Questions
         </h2>
+
+
 
         <div className="relative w-full max-w-3xl h-[100px] flex-shrink-0">
           {faqs.map((faq, idx) => (

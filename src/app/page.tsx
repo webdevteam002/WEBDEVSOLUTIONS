@@ -30,7 +30,12 @@ export default async function Home() {
     const dbProjects = await Project.find({}).sort({ createdAt: -1 }).lean()
     if (dbProjects.length > 0) {
       portfolioProjects = dbProjects.map(p => {
-        let customImage = p.imageUrl === '/logo-parts/pixels.webp' ? '/hamdard.png' : (p.imageUrl || "/hamdard.png");
+        const matchingFallback = fallbackProjects.find(
+          fp => fp.title.toLowerCase() === p.title.toLowerCase()
+        );
+        const customImage = (!p.imageUrl || p.imageUrl === '/logo-parts/pixels.webp')
+          ? (matchingFallback?.imageFallback || undefined)
+          : p.imageUrl;
         
         return {
           id: p._id.toString(),

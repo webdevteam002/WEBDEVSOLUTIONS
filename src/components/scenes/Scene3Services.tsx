@@ -109,17 +109,44 @@ function MobileServices() {
     <section id="services" className="w-full bg-[#0A0E1A]">
       <div className="w-full flex flex-col pt-24 pb-24">
         {clusters.map((cluster, cIdx) => (
-          <div key={cluster.id} className="min-h-screen w-full flex flex-col justify-center px-6 relative snap-start mb-24 last:mb-0">
+          <div key={cluster.id} className="min-h-screen w-full flex flex-col justify-center px-6 relative mb-24 last:mb-0">
             {cIdx === 0 ? (
-              <motion.h2 layoutId="we-build-differently" className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue mb-12">
+              <motion.h2
+                layoutId="we-build-differently"
+                className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue mb-12"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              >
                 {cluster.name}
               </motion.h2>
             ) : (
-              <h2 className="text-6xl font-bold text-white mb-12">{cluster.name}</h2>
+              <motion.h2
+                className="text-6xl font-bold text-white mb-12"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              >
+                {cluster.name}
+              </motion.h2>
             )}
             <div className="flex flex-col gap-6 relative z-10 w-full">
               {cluster.services.map((service, idx) => (
-                <ServiceCardItem key={service.id} service={service} index={idx} isMobile={true} />
+                <motion.div
+                  key={service.id}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{
+                    duration: 0.5,
+                    delay: idx * 0.12,
+                    ease: "easeOut"
+                  }}
+                >
+                  <ServiceCardItem service={service} index={idx} isMobile={true} />
+                </motion.div>
               ))}
             </div>
             {cIdx === 1 && (

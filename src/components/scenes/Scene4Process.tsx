@@ -88,7 +88,7 @@ export function Scene4Process() {
 
   return (
     <section ref={containerRef} id="process" className="relative py-32 w-full bg-[#0A0E1A]">
-      <div className="max-w-4xl mx-auto px-4 pl-32 md:pl-4">
+      <div className="max-w-4xl mx-auto px-4 pl-4 md:pl-4">
         <h2 className="text-4xl md:text-6xl font-bold mb-24 text-center md:text-left md:ml-32">
           Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-cyan">Process</span>
         </h2>
