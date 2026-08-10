@@ -43,7 +43,7 @@ export function Scene6Portfolio({ projects }: { projects: ProjectData[] }) {
         <h2 className="text-4xl font-bold text-white mb-4">Selected Work</h2>
       </div>
       
-      <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar w-full px-6 gap-6 pb-8">
+      <div className="flex overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] w-full px-6 gap-6 pb-8">
         {projects.map((project) => (
           <div key={project.id} className="w-[85vw] shrink-0 snap-center flex flex-col gap-6">
             <div className="w-full h-[40vh] rounded-2xl overflow-hidden relative border border-white/10">

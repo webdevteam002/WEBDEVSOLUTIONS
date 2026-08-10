@@ -59,7 +59,7 @@ export function ServiceCardItem({ service, index, isMobile }: { service: Service
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative overflow-hidden bg-[#0A0E1A]/80 backdrop-blur-md rounded-2xl border border-white/5 flex flex-col justify-between h-full p-6 lg:p-8 group cursor-pointer w-full md:w-[400px] transition-colors hover:border-cyan-500/30 min-h-[220px]"
+      className="relative overflow-hidden bg-[#0A0E1A]/80 backdrop-blur-md rounded-2xl border border-white/10 flex flex-col justify-between h-full p-6 lg:p-8 group cursor-pointer w-full md:w-[400px] transition-colors hover:border-cyan-500/30 min-h-[220px]"
     >
       {!isMobile && (
         <motion.div
@@ -116,7 +116,7 @@ function MobileServices() {
                 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue mb-12"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
+                viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
               >
                 {cluster.name}
@@ -126,7 +126,7 @@ function MobileServices() {
                 className="text-6xl font-bold text-white mb-12"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
+                viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
               >
                 {cluster.name}
@@ -138,7 +138,7 @@ function MobileServices() {
                   key={service.id}
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
+                  viewport={{ once: true, amount: 0.2 }}
                   transition={{
                     duration: 0.5,
                     delay: idx * 0.12,

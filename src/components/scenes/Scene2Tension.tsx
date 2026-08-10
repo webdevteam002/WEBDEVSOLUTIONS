@@ -6,7 +6,8 @@ import { Shard } from '@/components/ui/Shard'
 
 export function Scene2Tension() {
   const ref = useRef<HTMLElement>(null)
-  const shouldReduceMotion = useReducedMotion()
+  const systemReduceMotion = useReducedMotion()
+  const shouldReduceMotion = false // Forced for cinematic mobile showcase
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -46,8 +47,8 @@ export function Scene2Tension() {
         </motion.div>
       )}
 
-      {/* Manifesto Content (Placeholder Left Alignment for future SectionIndex rail) */}
-      <div className="z-10 pl-8 md:pl-24 pr-4 w-full max-w-7xl mx-auto flex flex-col justify-center">
+      {/* Manifesto Content */}
+      <div className="z-10 px-6 md:pl-24 md:pr-4 w-full max-w-7xl mx-auto flex flex-col justify-center">
         <motion.h2 
           className="text-4xl md:text-6xl lg:text-7xl font-medium tracking-tight text-white mb-6"
           style={staticStyle(op1)}

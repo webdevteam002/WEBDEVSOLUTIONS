@@ -140,7 +140,8 @@ export function Scene8FAQ() {
   const [openIdx, setOpenIdx] = useState<number | null>(0)
   const [activeIndex, setActiveIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
-  const shouldReduceMotion = useReducedMotion()
+  const systemReduceMotion = useReducedMotion()
+  const shouldReduceMotion = false // Forced for cinematic mobile showcase
 
   const { scrollYProgress: entryProgress } = useScroll({
     target: containerRef,
@@ -180,7 +181,7 @@ export function Scene8FAQ() {
             className="text-4xl font-bold text-center mb-16 text-white"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
+            viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
             FAQ
@@ -191,7 +192,7 @@ export function Scene8FAQ() {
                 key={idx}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
+                viewport={{ once: true, amount: 0.2 }}
                 transition={{
                   duration: 0.45,
                   delay: idx * 0.1,

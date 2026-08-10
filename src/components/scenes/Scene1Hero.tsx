@@ -158,7 +158,7 @@ export function Scene1Hero() {
       <div className="sticky top-0 left-0 w-full h-screen flex flex-col md:flex-row items-center z-0 overflow-hidden bg-[#0A0E1A]">
         
         {/* Left Column: Text (Visible above the background) */}
-        <div className="w-full md:w-1/2 h-full flex flex-col justify-center px-8 md:pl-32 z-20 pt-24 md:pt-0 pointer-events-auto">
+        <div className="w-full md:w-1/2 h-full flex flex-col justify-center px-6 md:pl-32 z-20 pt-16 md:pt-0 pointer-events-auto">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -199,7 +199,7 @@ export function Scene1Hero() {
           {/* Canvas for 60fps hardware accelerated rendering */}
           <canvas 
             ref={canvasRef}
-            className={`w-full h-full object-cover object-[center_15%] mix-blend-screen transition-opacity duration-500 ${isFirstFrameLoaded ? 'opacity-30 md:opacity-100' : 'opacity-0'}`}
+            className={`w-full h-full object-cover object-center md:object-[center_15%] mix-blend-screen transition-opacity duration-500 ${isFirstFrameLoaded ? 'opacity-30 md:opacity-100' : 'opacity-0'}`}
           />
           {/* Fade mask for mobile/desktop seamless blending */}
           <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#0A0E1A] via-[#0A0E1A]/80 md:via-transparent to-transparent pointer-events-none" />

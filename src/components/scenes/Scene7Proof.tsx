@@ -20,7 +20,8 @@ export function Scene7Proof() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const shouldReduceMotion = useReducedMotion()
+  const systemReduceMotion = useReducedMotion()
+  const shouldReduceMotion = false // Forced for cinematic mobile showcase
 
   // Spring physics for smooth scroll-scrubbing
   const smoothProgress = useSpring(scrollYProgress, {
@@ -115,7 +116,7 @@ export function Scene7Proof() {
           <div className="flex flex-col items-center relative group">
             {/* Outline Base */}
             <div 
-              className="text-[8rem] md:text-[12rem] lg:text-[16rem] font-bold leading-none tracking-tighter"
+              className="text-[6rem] md:text-[12rem] lg:text-[16rem] font-bold leading-none tracking-tighter"
               style={{
                 WebkitTextStroke: "1px rgba(255,255,255,0.2)",
                 color: "transparent",
@@ -126,7 +127,7 @@ export function Scene7Proof() {
             
             {/* Filled Overlay via ClipPath */}
             <motion.div 
-              className="absolute top-0 left-0 w-full text-[8rem] md:text-[12rem] lg:text-[16rem] font-bold leading-none tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-white/50 text-center"
+              className="absolute top-0 left-0 w-full text-[6rem] md:text-[12rem] lg:text-[16rem] font-bold leading-none tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-white/50 text-center"
               style={{ clipPath: shouldReduceMotion ? 'none' : clipPathFill }}
             >
               2+

@@ -110,7 +110,7 @@ function MarqueeRow({
           <div 
             key={idx} 
             ref={el => { itemRefs.current[idx] = el }}
-            className="px-6 py-3 md:px-10 md:py-5 rounded-full border text-xl md:text-3xl font-bold transition-none"
+            className="px-6 py-3 md:px-10 md:py-5 rounded-full border text-lg md:text-3xl font-bold transition-none"
             style={{ 
               backgroundColor: 'rgba(15, 23, 42, 0.8)',
               borderColor: 'rgba(255, 255, 255, 0.1)',

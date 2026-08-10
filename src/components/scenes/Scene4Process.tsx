@@ -87,7 +87,7 @@ export function Scene4Process() {
   }, { scope: containerRef });
 
   return (
-    <section ref={containerRef} id="process" className="relative py-32 w-full bg-[#0A0E1A]">
+    <section ref={containerRef} id="process" className="relative py-32 w-full bg-[#0A0E1A] overflow-hidden">
       <div className="max-w-4xl mx-auto px-4 pl-4 md:pl-4">
         <h2 className="text-4xl md:text-6xl font-bold mb-24 text-center md:text-left md:ml-32">
           Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-cyan">Process</span>
@@ -95,11 +95,11 @@ export function Scene4Process() {
 
         <div className="relative">
           {/* Faded background line */}
-          <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-[2px] bg-white/10 transform md:-translate-x-1/2"></div>
+          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-white/10 transform md:-translate-x-1/2"></div>
           
           {/* Animated Neon Line */}
           <div 
-            className="process-vertical-line absolute left-8 md:left-1/2 top-0 bottom-0 w-[2px] bg-brand-cyan transform md:-translate-x-1/2 origin-top drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]"
+            className="process-vertical-line absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-brand-cyan transform md:-translate-x-1/2 origin-top drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]"
           />
 
           <div className="space-y-32 pb-32">
@@ -111,14 +111,14 @@ export function Scene4Process() {
                 }`}>
                   
                   {/* Shard Node Wrapper */}
-                  <div className="absolute left-8 md:left-1/2 w-12 h-12 transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center pointer-events-none">
+                  <div className="absolute left-4 md:left-1/2 w-10 h-10 md:w-12 md:h-12 transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center pointer-events-none">
                      <div className="step-shard w-full h-full">
-                       <Shard shardId={isEven ? 3 : 4} className="w-12 h-12" />
+                       <Shard shardId={isEven ? 3 : 4} className="w-10 h-10 md:w-12 md:h-12" />
                      </div>
                   </div>
 
                   {/* Content */}
-                  <div className="step-content w-full md:w-1/2 pl-16 md:pl-0 md:px-16">
+                  <div className="step-content w-full md:w-1/2 pl-12 md:pl-0 md:px-16">
                     <div className={`p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm ${
                       isEven ? 'md:text-left' : 'md:text-right'
                     }`}>

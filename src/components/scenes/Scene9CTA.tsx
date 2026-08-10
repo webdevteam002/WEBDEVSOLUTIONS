@@ -73,8 +73,8 @@ Thanks,
         </motion.div>
       </div>
 
-      <div className="z-10 w-full max-w-7xl mx-auto px-4 pl-8 md:pl-32 flex flex-col justify-center h-full">
-        <div className="max-w-xl text-left">
+      <div className="z-10 w-full max-w-7xl mx-auto px-6 md:px-4 md:pl-32 flex flex-col justify-center h-full">
+        <div className="max-w-xl text-center md:text-left">
           <h2 className="text-5xl md:text-7xl font-bold mb-8 text-white drop-shadow-xl">
             Let's Build Something That <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">Scales</span>
           </h2>
