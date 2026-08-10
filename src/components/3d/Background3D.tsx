@@ -9,7 +9,7 @@ function ParticleField() {
   const ref = useRef<THREE.Points>(null!)
   
   const sphere = useMemo(() => {
-    const count = 5000
+    const count = 2500
     const positions = new Float32Array(count * 3)
     for (let i = 0; i < count; i++) {
       const r = 1.5 * Math.cbrt(Math.random())
@@ -23,6 +23,8 @@ function ParticleField() {
   }, [])
 
   useFrame((state, delta) => {
+    if (typeof window !== 'undefined' && window.scrollY > window.innerHeight * 1.5) return
+
     if (ref.current) {
       ref.current.rotation.x -= delta / 10
       ref.current.rotation.y -= delta / 15

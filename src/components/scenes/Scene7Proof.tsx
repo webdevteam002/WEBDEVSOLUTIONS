@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect } from 'react'
-import { motion, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion'
+import { motion, useScroll, useTransform, useSpring, useReducedMotion, useInView } from 'framer-motion'
 
 export function Scene7Proof() {
   const containerRef = useRef<HTMLElement>(null)
@@ -11,6 +11,7 @@ export function Scene7Proof() {
     offset: ["start end", "end start"]
   })
 
+  const isInView = useInView(containerRef)
   const [isMobile, setIsMobile] = useState(true) // Default true for safety
   
   useEffect(() => {
@@ -60,32 +61,22 @@ export function Scene7Proof() {
           {/* Cyan Blob */}
           <motion.div 
             className={`absolute w-[40vw] h-[40vw] rounded-full bg-brand-cyan/10 ${isMobile ? 'blur-[80px]' : 'blur-[120px]'}`}
-            animate={{
+            animate={isInView ? {
               x: ["-20%", "10%", "-20%"],
               y: ["-10%", "20%", "-10%"],
               scale: [1, 1.1, 1],
-            }}
+            } : {}}
             transition={{
               duration: 25,
               repeat: Infinity,
               ease: "linear"
             }}
           />
-          {/* Blue Blob - hide on mobile to save performance */}
+          {/* Blue Blob - static on desktop to save performance */}
           {!isMobile && (
             <motion.div 
               className="absolute w-[35vw] h-[35vw] rounded-full bg-[#1E40AF]/15 blur-[120px]"
-              animate={{
-                x: ["10%", "-15%", "10%"],
-                y: ["20%", "-20%", "20%"],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: 30,
-                repeat: Infinity,
-                ease: "linear",
-                delay: 5
-              }}
+              initial={{ x: "10%", y: "20%" }}
             />
           )}
         </div>

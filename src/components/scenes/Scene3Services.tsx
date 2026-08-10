@@ -44,11 +44,23 @@ export function ServiceCardItem({ service, index, isMobile }: { service: Service
   const mouseY = useMotionValue(0)
   const [isHovered, setIsHovered] = useState(false)
 
+  const isUpdating = useRef(false)
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current || isMobile) return
-    const rect = cardRef.current.getBoundingClientRect()
-    mouseX.set(e.clientX - rect.left)
-    mouseY.set(e.clientY - rect.top)
+    if (!cardRef.current || isMobile || isUpdating.current) return
+    
+    const clientX = e.clientX
+    const clientY = e.clientY
+    const currentTarget = cardRef.current
+    
+    isUpdating.current = true
+    requestAnimationFrame(() => {
+      if (currentTarget) {
+        const rect = currentTarget.getBoundingClientRect()
+        mouseX.set(clientX - rect.left)
+        mouseY.set(clientY - rect.top)
+      }
+      isUpdating.current = false
+    })
   }
 
   const spotlight = useMotionTemplate`radial-gradient(400px circle at ${mouseX}px ${mouseY}px, rgba(34, 211, 238, 0.1), transparent 40%)`

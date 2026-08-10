@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useEffect, useState } from 'react'
-import { motion, useScroll, useVelocity, useSpring, useTransform, useAnimationFrame, useReducedMotion } from 'framer-motion'
+import { motion, useScroll, useVelocity, useSpring, useTransform, useAnimationFrame, useReducedMotion, useInView } from 'framer-motion'
 
 const techs = [
   "Next.js", "React", "TypeScript", "Tailwind CSS", 
@@ -29,20 +29,22 @@ function MarqueeRow({
   direction, 
   baseVelocity,
   scrollVelocity,
-  isBackRow = false
+  isBackRow = false,
+  isInView
 }: { 
   items: string[], 
   direction: 1 | -1, 
   baseVelocity: number,
   scrollVelocity: any,
   isBackRow?: boolean
+  isInView: boolean
 }) {
   const baseX = useRef(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useAnimationFrame((t, delta) => {
-    if (!containerRef.current) return
+    if (!containerRef.current || !isInView) return
 
     // Calculate dynamic velocity: base speed + scroll-induced momentum
     let moveBy = direction * baseVelocity * (delta / 1000)
@@ -66,11 +68,16 @@ function MarqueeRow({
 
     containerRef.current.style.transform = `translateX(${baseX.current}%)`
 
-    // Center Focus / Bloom effect
+    // Batch reads to avoid layout thrashing
     const center = window.innerWidth / 2
-    itemRefs.current.forEach((el) => {
+    const rects = itemRefs.current.map(el => el ? el.getBoundingClientRect() : null)
+
+    // Batch writes
+    itemRefs.current.forEach((el, i) => {
       if (!el) return
-      const rect = el.getBoundingClientRect()
+      const rect = rects[i]
+      if (!rect) return
+      
       const elCenter = rect.left + rect.width / 2
       const dist = Math.abs(center - elCenter)
       
@@ -143,6 +150,8 @@ export function Scene5TechStack() {
     offset: ["end center", "end start"]
   })
 
+  const isInView = useInView(containerRef, { margin: "100px" })
+
   const scrollVelocity = useVelocity(scrollYProgress)
   const smoothVelocity = useSpring(scrollVelocity, {
     damping: 50,
@@ -193,6 +202,7 @@ export function Scene5TechStack() {
                  baseVelocity={3} 
                  scrollVelocity={smoothVelocity} 
                  isBackRow={true}
+                 isInView={isInView}
                />
              )}
              
@@ -202,6 +212,7 @@ export function Scene5TechStack() {
                direction={1} 
                baseVelocity={6} 
                scrollVelocity={smoothVelocity} 
+               isInView={isInView}
              />
            </>
         )}
