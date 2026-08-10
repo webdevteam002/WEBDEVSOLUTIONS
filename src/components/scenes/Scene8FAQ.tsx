@@ -139,7 +139,6 @@ export function Scene8FAQ() {
   const containerRef = useRef<HTMLElement>(null)
   const [openIdx, setOpenIdx] = useState<number | null>(0)
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isMobile, setIsMobile] = useState(false)
   const systemReduceMotion = useReducedMotion()
   const shouldReduceMotion = false // Forced for cinematic mobile showcase
 
@@ -156,7 +155,7 @@ export function Scene8FAQ() {
   const deckIndex = useTransform(deckProgress, [0, 1], [0, faqs.length - 1])
 
   useMotionValueEvent(deckIndex, "change", (latest) => {
-    if (isMobile || shouldReduceMotion) return
+    if (shouldReduceMotion) return
     const rounded = Math.round(latest)
     if (rounded !== activeIndex) {
       setActiveIndex(rounded)
@@ -166,84 +165,16 @@ export function Scene8FAQ() {
     }
   })
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  if (isMobile || shouldReduceMotion) {
-    return (
-      <section id="faq" className="py-24 bg-[#0A0E1A]">
-        <div className="max-w-3xl mx-auto px-4">
-          <motion.h2
-            className="text-4xl font-bold text-center mb-16 text-white"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          >
-            FAQ
-          </motion.h2>
-          <div className="flex flex-col gap-4">
-            {faqs.map((faq, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{
-                  duration: 0.45,
-                  delay: idx * 0.1,
-                  ease: "easeOut"
-                }}
-              >
-                <div className="bg-[#161B22] border border-white/10 rounded-2xl overflow-hidden">
-                  <button 
-                    onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
-                    className="w-full flex items-center justify-between p-6 text-left cursor-pointer"
-                  >
-                    <span className="font-medium text-lg text-white">{faq.q}</span>
-                    <motion.div animate={{ rotate: openIdx === idx ? 180 : 0 }}>
-                      <ChevronDown className="w-5 h-5 text-brand-cyan" />
-                    </motion.div>
-                  </button>
-                  <AnimatePresence>
-                    {openIdx === idx && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="p-6 pt-0 text-[#C9CDD6]">
-                          {faq.a}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  // Desktop Stacking Deck
+  // Desktop Stacking Deck now used responsively on mobile
   return (
-    <section ref={containerRef} id="faq" className="h-[400vh] relative w-full bg-[#0A0E1A]">
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden px-4">
+    <section ref={containerRef} id="faq" className="h-[300vh] md:h-[400vh] relative w-full bg-[#0A0E1A]">
+      <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden px-4 md:px-6">
         
-        <h2 className="text-4xl md:text-6xl font-bold text-white mb-16 relative z-50">
+        <h2 className="text-4xl md:text-6xl font-bold text-white mb-8 md:mb-16 relative z-50 text-center">
           Frequently Asked Questions
         </h2>
 
-
-
-        <div className="relative w-full max-w-3xl h-[100px] flex-shrink-0">
+        <div className="relative w-full max-w-3xl h-[80px] md:h-[100px] flex-shrink-0 mt-8 md:mt-0">
           {faqs.map((faq, idx) => (
             <FAQCard
               key={idx}

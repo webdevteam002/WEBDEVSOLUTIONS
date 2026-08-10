@@ -198,9 +198,15 @@ html.lenis, html.lenis body {
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    width: 100%;
+    overscroll-behavior-x: none;
   }
   html {
     @apply font-sans;
+    overflow-x: hidden;
+    width: 100%;
+    overscroll-behavior-x: none;
   }
 }
 

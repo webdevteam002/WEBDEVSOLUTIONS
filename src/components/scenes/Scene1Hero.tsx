@@ -199,16 +199,16 @@ export function Scene1Hero() {
           {/* Canvas for 60fps hardware accelerated rendering */}
           <canvas 
             ref={canvasRef}
-            className={`w-full h-full object-cover object-center md:object-[center_15%] mix-blend-screen transition-opacity duration-500 ${isFirstFrameLoaded ? 'opacity-30 md:opacity-100' : 'opacity-0'}`}
+            className={`w-full h-full object-cover object-center mix-blend-screen transition-opacity duration-500 ${isFirstFrameLoaded ? 'opacity-60 md:opacity-100' : 'opacity-0'}`}
           />
           {/* Fade mask for mobile/desktop seamless blending */}
-          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#0A0E1A] via-[#0A0E1A]/80 md:via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A] via-[#0A0E1A]/40 to-transparent md:bg-gradient-to-r md:via-transparent pointer-events-none" />
         </div>
 
         {/* Scroll-cue chevron */}
         <motion.div 
           className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 z-20"
-          style={{ opacity: chevronOpacity }}
+          style={{ opacity: chevronOpacity, willChange: "transform" }}
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
         >
