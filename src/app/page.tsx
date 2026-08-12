@@ -53,7 +53,7 @@ export default async function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col relative bg-[#0A0E1A]">
+    <main className="flex min-h-screen flex-col relative bg-[#0A0E1A] overflow-x-hidden w-full">
       <Navbar />
       <SectionIndex />
       <Scene1Hero />

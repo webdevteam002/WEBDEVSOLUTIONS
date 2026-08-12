@@ -199,7 +199,7 @@ export function Scene1Hero() {
           {/* Canvas for 60fps hardware accelerated rendering */}
           <canvas 
             ref={canvasRef}
-            className={`w-full h-full object-cover object-center md:object-[center_15%] mix-blend-screen transition-opacity duration-500 ${isFirstFrameLoaded ? 'opacity-30 md:opacity-100' : 'opacity-0'}`}
+            className={`w-full h-full object-contain object-center md:object-cover md:object-[center_15%] mix-blend-screen transition-opacity duration-500 ${isFirstFrameLoaded ? 'opacity-30 md:opacity-100' : 'opacity-0'}`}
           />
           {/* Fade mask for mobile/desktop seamless blending */}
           <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#0A0E1A] via-[#0A0E1A]/80 md:via-transparent to-transparent pointer-events-none" />

@@ -49,6 +49,12 @@ export function Navbar() {
             </button>
           </div>
 
+          {/* Mobile Branding: Top Right */}
+          <div className="md:hidden flex items-center font-bold text-lg tracking-tight z-[105]">
+            <span className="text-brand-cyan">WebDev</span>
+            <span className="text-white ml-1">Solutions</span>
+          </div>
+
           {/* Center Column: Anchor Links */}
           <nav className="hidden md:flex items-center gap-8">
             {NAV_LINKS.map((link) => (
