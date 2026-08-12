@@ -35,7 +35,7 @@ export function Scene2Tension() {
     shouldReduceMotion ? { opacity: 1 } : { opacity: op }
 
   return (
-    <section ref={ref} className="h-[150vh] relative w-full bg-[#0A0E1A] overflow-hidden flex flex-col justify-center">
+    <section ref={ref} className="h-[100vh] md:h-[150vh] relative w-full bg-[#0A0E1A] overflow-hidden flex flex-col justify-center shrink-0">
       
       {/* Shard forming motif */}
       {!shouldReduceMotion && (

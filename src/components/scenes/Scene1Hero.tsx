@@ -78,9 +78,14 @@ export function Scene1Hero() {
       setIsFirstFrameLoaded(true)
       setTimeout(() => drawFrame(currentTargetIndex.current), 0)
       
-      // Compute loading order for interlaced effect (Passes: 16, 8, 4, 2, 1)
+      // Compute loading order for interlaced effect
       const loadOrder: number[] = []
-      const strides = [16, 8, 4, 2, 1]
+      
+      const isMobileDevice = window.innerWidth < 768
+      const mobileStride = Math.floor(frameCount / 80) // 6
+      const strides = isMobileDevice 
+        ? [mobileStride * 4, mobileStride * 2, mobileStride]
+        : [16, 8, 4, 2, 1]
       
       for (const stride of strides) {
         for (let i = 1; i < frameCount; i += stride) {
@@ -153,7 +158,7 @@ export function Scene1Hero() {
 
   const chevronOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
   return (
-    <div ref={containerRef} className="relative w-full h-[400vh]">
+    <div ref={containerRef} className="relative w-full h-[400vh] shrink-0">
       {/* Sticky container that stays on screen during the 400vh scroll */}
       <div className="sticky top-0 left-0 w-full h-screen flex flex-col md:flex-row items-center z-0 overflow-hidden bg-[#0A0E1A]">
         
@@ -163,7 +168,7 @@ export function Scene1Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
-            className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-lg"
+            className="text-4xl md:text-6xl font-bold text-white mb-10 md:mb-6 leading-tight drop-shadow-lg"
           >
             We Engineer <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">
@@ -175,7 +180,7 @@ export function Scene1Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="text-lg text-[#C9CDD6] mb-8 max-w-lg"
+            className="text-lg text-[#C9CDD6] mb-12 md:mb-8 max-w-lg"
           >
             A premium Web3 & Full-Stack Agency with 2+ Years Experience delivering cinematic websites and scalable applications.
           </motion.p>
@@ -199,7 +204,7 @@ export function Scene1Hero() {
           {/* Canvas for 60fps hardware accelerated rendering */}
           <canvas 
             ref={canvasRef}
-            className={`w-full h-full object-cover object-center md:object-[center_15%] mix-blend-screen transition-opacity duration-500 ${isFirstFrameLoaded ? 'opacity-30 md:opacity-100' : 'opacity-0'}`}
+            className={`w-full h-full object-contain object-top md:object-cover md:object-[center_15%] mix-blend-screen transition-opacity duration-500 ${isFirstFrameLoaded ? 'opacity-60 md:opacity-100' : 'opacity-0'}`}
           />
           {/* Fade mask for mobile/desktop seamless blending */}
           <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#0A0E1A] via-[#0A0E1A]/80 md:via-transparent to-transparent pointer-events-none" />
