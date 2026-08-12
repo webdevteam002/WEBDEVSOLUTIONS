@@ -84,7 +84,7 @@ export function Scene4Process() {
       );
     });
 
-  }, { scope: containerRef });
+  }, { scope: containerRef, dependencies: [] });
 
   return (
     <section ref={containerRef} id="process" className="relative py-32 w-full bg-[#0A0E1A] overflow-hidden">
@@ -136,7 +136,7 @@ export function Scene4Process() {
           <div 
             className="process-horizontal-line absolute left-8 md:left-1/2 bottom-0 h-[2px] bg-brand-cyan origin-left drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]"
             style={{ 
-              width: "100vw", 
+              width: "200%", 
               marginLeft: "1px" // slight overlap to join perfectly
             }}
           />

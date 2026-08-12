@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useGSAP } from '@gsap/react'
 import Image from 'next/image'
 
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
+  gsap.registerPlugin(ScrollTrigger, useGSAP)
 }
 
 export interface ProjectData {
@@ -27,63 +28,60 @@ export default function PortfolioGSAP({ projects }: { projects: ProjectData[] })
   const categories = Array.from(new Set(projects.map(p => p.category)))
   const [activeCategory, setActiveCategory] = useState<string>(categories[0])
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
+  useGSAP(() => {
     if (window.innerWidth < 768) return
     if (!containerRef.current || !trackRef.current) return
 
-    const ctx = gsap.context(() => {
-      const totalPanels = projects.length
+    const totalPanels = projects.length
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 1,
-          onUpdate: (self) => {
-            // Determine active category based on progress
-            const index = Math.min(
-              Math.floor(self.progress * totalPanels),
-              totalPanels - 1
-            )
-            setActiveCategory(projects[index].category)
-          }
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1,
+        onUpdate: (self) => {
+          // Determine active category based on progress
+          const index = Math.min(
+            Math.floor(self.progress * totalPanels),
+            totalPanels - 1
+          )
+          setActiveCategory(projects[index].category)
         }
-      })
+      }
+    })
 
-      // 1. Move the horizontal track
-      tl.to(trackRef.current, {
-        x: () => -(window.innerWidth * (totalPanels - 1)),
-        ease: "none",
-        duration: totalPanels - 1
-      }, 0)
+    // 1. Move the horizontal track
+    tl.to(trackRef.current, {
+      x: () => -(window.innerWidth * (totalPanels - 1)),
+      ease: "none",
+      duration: totalPanels - 1
+    }, 0)
 
-      // 2. Animate individual panels as they come in and out
-      panelsRef.current.forEach((panel, i) => {
-        if (!panel) return
-        const img = panel.querySelector('.portfolio-img')
-        const content = panel.querySelector('.portfolio-content')
-        
-        // Initial setup for panels > 0
-        if (i > 0) {
-          gsap.set(img, { scale: 0.8, opacity: 0.4 })
-          gsap.set(content, { opacity: 0, x: 50 })
-        }
+    // 2. Animate individual panels as they come in and out
+    panelsRef.current.forEach((panel, i) => {
+      if (!panel) return
+      const img = panel.querySelector('.portfolio-img')
+      const content = panel.querySelector('.portfolio-content')
+      
+      // Initial setup for panels > 0
+      if (i > 0) {
+        gsap.set(img, { scale: 0.8, opacity: 0.4 })
+        gsap.set(content, { opacity: 0, x: 50 })
+      }
 
-        // Animate IN (from i-1 to i)
-        if (i > 0) {
-          tl.to(img, { scale: 1, opacity: 1, ease: "power2.out", duration: 1 }, i - 1)
-          tl.to(content, { opacity: 1, x: 0, ease: "power2.out", duration: 1 }, i - 1)
-        }
+      // Animate IN (from i-1 to i)
+      if (i > 0) {
+        tl.to(img, { scale: 1, opacity: 1, ease: "power2.out", duration: 1 }, i - 1)
+        tl.to(content, { opacity: 1, x: 0, ease: "power2.out", duration: 1 }, i - 1)
+      }
 
-        // Animate OUT (from i to i+1)
-        if (i < totalPanels - 1) {
-          tl.to(img, { scale: 0.8, opacity: 0.4, ease: "power2.in", duration: 1 }, i)
-          tl.to(content, { opacity: 0, x: -50, ease: "power2.in", duration: 1 }, i)
-        }
-      })
-    }, containerRef)
+      // Animate OUT (from i to i+1)
+      if (i < totalPanels - 1) {
+        tl.to(img, { scale: 0.8, opacity: 0.4, ease: "power2.in", duration: 1 }, i)
+        tl.to(content, { opacity: 0, x: -50, ease: "power2.in", duration: 1 }, i)
+      }
+    })
 
     // Ensure ScrollTrigger measures correctly after layout
     const timer = setTimeout(() => {
@@ -91,10 +89,9 @@ export default function PortfolioGSAP({ projects }: { projects: ProjectData[] })
     }, 100)
 
     return () => {
-      ctx.revert()
       clearTimeout(timer)
     }
-  }, [projects])
+  }, { scope: containerRef, dependencies: [projects] })
 
   const handleCategoryClick = (category: string) => {
     const index = projects.findIndex(p => p.category === category)

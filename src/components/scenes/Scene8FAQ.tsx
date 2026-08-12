@@ -139,7 +139,6 @@ export function Scene8FAQ() {
   const containerRef = useRef<HTMLElement>(null)
   const [openIdx, setOpenIdx] = useState<number | null>(0)
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isMobile, setIsMobile] = useState(false)
   const systemReduceMotion = useReducedMotion()
   const shouldReduceMotion = false // Forced for cinematic mobile showcase
 
@@ -156,7 +155,7 @@ export function Scene8FAQ() {
   const deckIndex = useTransform(deckProgress, [0, 1], [0, faqs.length - 1])
 
   useMotionValueEvent(deckIndex, "change", (latest) => {
-    if (isMobile || shouldReduceMotion) return
+    if (shouldReduceMotion) return
     const rounded = Math.round(latest)
     if (rounded !== activeIndex) {
       setActiveIndex(rounded)
@@ -166,14 +165,7 @@ export function Scene8FAQ() {
     }
   })
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  if (isMobile || shouldReduceMotion) {
+  if (shouldReduceMotion) {
     return (
       <section id="faq" className="py-24 bg-[#0A0E1A]">
         <div className="max-w-3xl mx-auto px-4">
@@ -232,7 +224,7 @@ export function Scene8FAQ() {
     )
   }
 
-  // Desktop Stacking Deck
+  // Desktop/Mobile Stacking Deck
   return (
     <section ref={containerRef} id="faq" className="h-[400vh] relative w-full bg-[#0A0E1A]">
       <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden px-4">

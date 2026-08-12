@@ -182,7 +182,7 @@ export function Scene5TechStack() {
       className="relative py-32 h-screen max-h-[800px] bg-[#0A0E1A] overflow-hidden flex flex-col justify-center border-t border-white/5"
     >
       <motion.div 
-        className="flex flex-col justify-center relative w-full"
+        className="flex flex-col justify-center relative w-full overflow-x-hidden"
         style={!shouldReduceMotion ? { 
           gap, 
           opacity,

@@ -1,13 +1,7 @@
 'use client'
 
-import { motion, useScroll, useMotionValue } from 'framer-motion'
+import { motion, useScroll, useMotionValue, animate } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import gsap from 'gsap'
-import ScrollTrigger from 'gsap/ScrollTrigger'
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger)
-}
 
 const sections = [
   { id: '01', name: 'Hero' },
@@ -26,8 +20,19 @@ export function SectionIndex() {
   const traceProgress = useMotionValue(0)
   const { scrollYProgress } = useScroll() // Still used for mobile progress bar
 
+  // Animate trace line smoothly to the current active index
   useEffect(() => {
-    // Wait for other components (like Scene3) to mount and create their ScrollTriggers
+    const targetScale = activeIndex / (sections.length - 1)
+    const controls = animate(traceProgress, targetScale, {
+      type: "spring",
+      stiffness: 100,
+      damping: 20
+    })
+    return () => controls.stop()
+  }, [activeIndex, traceProgress])
+
+  useEffect(() => {
+    // Small delay ensures DOM is fully painted and any GSAP wrappers are applied
     const timeoutId = setTimeout(() => {
       const main = document.querySelector('main')
       if (!main) return
@@ -48,32 +53,27 @@ export function SectionIndex() {
         return
       }
 
-      // Create a ScrollTrigger for each scene
-      const triggers = scenes.map((scene, index) => {
-        return ScrollTrigger.create({
-          trigger: scene,
-          start: "top center",
-          end: "bottom center",
-          onUpdate: (self) => {
-            if (self.isActive) {
+      // Use IntersectionObserver to detect which section is in the center of the screen
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const index = scenes.indexOf(entry.target)
+            if (index !== -1) {
               setActiveIndex(index)
-              // Calculate smooth trace progress based on which section is active + its local progress
-              const localProgress = self.progress
-              let nextScale = (index + localProgress) / (sections.length - 1)
-              nextScale = Math.min(Math.max(nextScale, 0), 1) // Clamp 0-1
-              traceProgress.set(nextScale)
             }
           }
         })
+      }, {
+        rootMargin: "-50% 0px -50% 0px" // Trigger exactly when element crosses vertical center
       })
 
-      return () => {
-        triggers.forEach(t => t.kill())
-      }
-    }, 500) // Small delay ensures pinned spacers are already inserted into the DOM by GSAP
+      scenes.forEach(scene => observer.observe(scene))
+
+      return () => observer.disconnect()
+    }, 500)
 
     return () => clearTimeout(timeoutId)
-  }, [traceProgress])
+  }, [])
 
   return (
     <>
