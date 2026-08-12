@@ -103,6 +103,7 @@ export default function PortfolioGSAP({ projects }: { projects: ProjectData[] })
 
   return (
     <div 
+      id="projects"
       ref={containerRef} 
       className="relative w-full bg-[#0A0E1A] shrink-0"
       style={{ height: `${projects.length * 100}vh` }} // Explicit scroll-distance container
