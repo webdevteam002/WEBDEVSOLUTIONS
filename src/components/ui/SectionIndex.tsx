@@ -32,29 +32,32 @@ export function SectionIndex() {
   }, [activeIndex, traceProgress])
 
   useEffect(() => {
-    // Small delay ensures DOM is fully painted and any GSAP wrappers are applied
-    const timeoutId = setTimeout(() => {
+    let observer: IntersectionObserver | null = null;
+    let timeoutId: NodeJS.Timeout;
+
+    const initObserver = () => {
       const main = document.querySelector('main')
       if (!main) return
 
-      // Filter children to find the 9 scenes. 
+      // Filter children to find the scenes. 
       // We skip Navbar, SectionIndex, and Footer by checking computed styles or known tags.
       const children = Array.from(main.children)
       const scenes = children.filter(el => {
         const style = window.getComputedStyle(el)
         const tagName = el.tagName.toLowerCase()
         // Skip fixed elements (Navbar, SectionIndex) and footer
-        return style.position !== 'fixed' && tagName !== 'nav' && tagName !== 'footer'
+        return style.position !== 'fixed' && tagName !== 'nav' && tagName !== 'footer' && !el.hasAttribute('data-skip-index')
       })
 
-      // If we didn't find exactly 9 scenes, fallback gracefully
+      // If we didn't find exactly 9 scenes (because of lazy loading), retry
       if (scenes.length !== sections.length) {
-        console.warn('SectionIndex: Expected 9 scenes, found', scenes.length)
+        console.warn('SectionIndex: Expected 9 scenes, found', scenes.length, '- retrying...')
+        timeoutId = setTimeout(initObserver, 500)
         return
       }
 
       // Use IntersectionObserver to detect which section is in the center of the screen
-      const observer = new IntersectionObserver((entries) => {
+      observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const index = scenes.indexOf(entry.target)
@@ -67,12 +70,15 @@ export function SectionIndex() {
         rootMargin: "-50% 0px -50% 0px" // Trigger exactly when element crosses vertical center
       })
 
-      scenes.forEach(scene => observer.observe(scene))
+      scenes.forEach(scene => observer?.observe(scene))
+    }
 
-      return () => observer.disconnect()
-    }, 500)
+    timeoutId = setTimeout(initObserver, 500)
 
-    return () => clearTimeout(timeoutId)
+    return () => {
+      clearTimeout(timeoutId)
+      if (observer) observer.disconnect()
+    }
   }, [])
 
   return (
