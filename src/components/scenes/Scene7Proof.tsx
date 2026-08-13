@@ -12,15 +12,7 @@ export function Scene7Proof() {
   })
 
   const isInView = useInView(containerRef)
-  const [isMobile, setIsMobile] = useState(true) // Default true for safety
   
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
   const systemReduceMotion = useReducedMotion()
   const shouldReduceMotion = false // Forced for cinematic mobile showcase
 
@@ -53,14 +45,14 @@ export function Scene7Proof() {
   const exitScale = useTransform(smoothProgress, [0.8, 1], [1, 0.95])
 
   return (
-    <section ref={containerRef} className={`relative w-full bg-[#0A0E1A] flex flex-col justify-center overflow-hidden ${isMobile ? 'h-auto' : 'h-[200vh]'}`}>
+    <section ref={containerRef} className="relative w-full bg-[#0A0E1A] flex flex-col justify-center overflow-hidden h-auto md:h-[200vh]">
       
       {/* 1. Ambient Background Depth (Drifting Blobs) */}
       {!shouldReduceMotion && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
           {/* Cyan Blob */}
           <motion.div 
-            className={`absolute w-[40vw] h-[40vw] rounded-full bg-brand-cyan/10 ${isMobile ? 'blur-[80px]' : 'blur-[120px]'}`}
+            className="absolute w-[40vw] h-[40vw] rounded-full bg-brand-cyan/10 blur-[80px] md:blur-[120px]"
             animate={isInView ? {
               x: ["-20%", "10%", "-20%"],
               y: ["-10%", "20%", "-10%"],
@@ -72,18 +64,16 @@ export function Scene7Proof() {
               ease: "linear"
             }}
           />
-          {/* Blue Blob - static on desktop to save performance */}
-          {!isMobile && (
-            <motion.div 
-              className="absolute w-[35vw] h-[35vw] rounded-full bg-[#1E40AF]/15 blur-[120px]"
-              initial={{ x: "10%", y: "20%" }}
-            />
-          )}
+          {/* Blue Blob - hidden on mobile to save performance */}
+          <motion.div 
+            className="hidden md:block absolute w-[35vw] h-[35vw] rounded-full bg-[#1E40AF]/15 blur-[120px]"
+            initial={{ x: "10%", y: "20%" }}
+          />
         </div>
       )}
 
       <motion.div 
-        className={`flex flex-col items-center justify-center w-full px-6 ${isMobile ? 'py-24' : 'sticky top-0 h-screen'}`}
+        className="flex flex-col items-center justify-center w-full px-6 py-24 md:py-0 md:sticky md:top-0 md:h-screen"
         style={{ 
           opacity: shouldReduceMotion ? 1 : exitOpacity, 
           scale: shouldReduceMotion ? 1 : exitScale 
@@ -150,14 +140,15 @@ export function Scene7Proof() {
 
           {/* 3. The Circuit Divider */}
           <div className="relative w-full h-[1px] md:w-[1px] md:h-64 bg-white/10 flex-shrink-0 overflow-hidden my-4 md:my-0 rounded-full">
+            {/* Mobile Horizontal Trace */}
             <motion.div 
-              className="absolute w-full h-[20px] md:w-[2px] md:h-1/3 bg-brand-cyan shadow-[0_0_15px_rgba(34,211,238,0.8)] rounded-full"
-              style={{
-                top: isMobile ? 0 : traceY,
-                left: isMobile ? traceX : 0,
-                x: isMobile ? '-50%' : 0,
-                y: isMobile ? 0 : '-50%'
-              }}
+              className="absolute w-full h-[20px] bg-brand-cyan shadow-[0_0_15px_rgba(34,211,238,0.8)] rounded-full md:hidden"
+              style={{ top: 0, left: traceX, x: '-50%', y: 0 }}
+            />
+            {/* Desktop Vertical Trace */}
+            <motion.div 
+              className="absolute hidden md:block w-[2px] h-1/3 bg-brand-cyan shadow-[0_0_15px_rgba(34,211,238,0.8)] rounded-full"
+              style={{ top: traceY, left: 0, x: 0, y: '-50%' }}
             />
           </div>
 
