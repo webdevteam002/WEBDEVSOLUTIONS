@@ -107,7 +107,7 @@ function MarqueeRow({
   const allItems = [...items, ...items]
 
   return (
-    <div className={`flex whitespace-nowrap overflow-visible ${isBackRow ? 'opacity-60 blur-[1.5px] scale-90' : 'opacity-100 z-10'}`}>
+    <div className={`${isBackRow ? 'hidden md:flex opacity-60 blur-[1.5px] scale-90' : 'flex opacity-100 z-10'} whitespace-nowrap overflow-visible`}>
       <div 
         ref={containerRef}
         className="flex gap-8 md:gap-16 px-4 md:px-8 items-center"
@@ -158,16 +158,11 @@ export function Scene5TechStack() {
     stiffness: 400
   })
 
-  const [isMobile, setIsMobile] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   const systemReduceMotion = useReducedMotion()
 
   useEffect(() => {
     setIsMounted(true)
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   const shouldReduceMotion = false // Forced false to ensure marquee animation plays
@@ -195,16 +190,14 @@ export function Scene5TechStack() {
         ) : (
            <>
              {/* Row 2 (Background, reversed array so order feels distinct) */}
-             {!isMobile && (
-               <MarqueeRow 
-                 items={[...techs].reverse()} 
-                 direction={-1} 
-                 baseVelocity={3} 
-                 scrollVelocity={smoothVelocity} 
-                 isBackRow={true}
-                 isInView={isInView}
-               />
-             )}
+             <MarqueeRow 
+               items={[...techs].reverse()} 
+               direction={-1} 
+               baseVelocity={3} 
+               scrollVelocity={smoothVelocity} 
+               isBackRow={true}
+               isInView={isInView}
+             />
              
              {/* Row 1 (Foreground) */}
              <MarqueeRow 

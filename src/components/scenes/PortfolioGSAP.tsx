@@ -39,6 +39,7 @@ export default function PortfolioGSAP({ projects }: { projects: ProjectData[] })
         start: "top top",
         end: "bottom bottom",
         scrub: 1,
+        invalidateOnRefresh: true,
         onUpdate: (self) => {
           // Determine active category based on progress
           const index = Math.min(
