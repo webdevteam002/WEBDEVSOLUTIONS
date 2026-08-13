@@ -158,9 +158,8 @@ export function Scene1Hero() {
 
   const chevronOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
   return (
-    <div ref={containerRef} className="relative w-full h-[120vh] md:h-[400vh] shrink-0">
-      {/* Sticky on desktop, relative on mobile */}
-      <div className="relative md:sticky md:top-0 left-0 w-full h-[120vh] md:h-screen flex flex-col md:flex-row items-center z-0 overflow-hidden bg-[#0A0E1A]">
+    <div ref={containerRef} className="relative w-full h-[400vh] shrink-0">
+      <div className="sticky top-0 left-0 w-full h-screen flex flex-col md:flex-row items-center z-0 overflow-hidden bg-[#0A0E1A]">
         
         {/* Left Column: Text (Visible above the background) */}
         <div className="w-full md:w-1/2 h-full flex flex-col justify-center px-6 md:pl-32 z-20 pt-16 md:pt-0 pointer-events-auto">
@@ -210,9 +209,9 @@ export function Scene1Hero() {
           <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#0A0E1A] via-[#0A0E1A]/80 md:via-transparent to-transparent pointer-events-none" />
         </div>
 
-        {/* Scroll-cue chevron (hidden on mobile since it doesn't pin) */}
+        {/* Scroll-cue chevron */}
         <motion.div 
-          className="hidden md:block absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 z-20"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 z-20"
           style={{ opacity: chevronOpacity }}
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
