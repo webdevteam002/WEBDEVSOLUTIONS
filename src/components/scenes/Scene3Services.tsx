@@ -1,15 +1,8 @@
 'use client'
 
-import { useRef, MouseEvent, useState, useEffect } from 'react'
+import { useRef, MouseEvent, useState } from 'react'
 import { motion, useMotionTemplate, useMotionValue } from 'framer-motion'
 import { Shard } from '@/components/ui/Shard'
-import gsap from 'gsap'
-import ScrollTrigger from 'gsap/ScrollTrigger'
-import { useGSAP } from '@gsap/react'
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, useGSAP)
-}
 
 export interface ServiceType {
   id: string;
@@ -38,7 +31,7 @@ const clusters = [
   { id: 'establish', name: 'Establish.', services: [servicesData[7], servicesData[8]] },
 ]
 
-export function ServiceCardItem({ service, index, isMobile }: { service: ServiceType, index: number, isMobile: boolean }) {
+export function ServiceCardItem({ service, index }: { service: ServiceType, index: number }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
@@ -46,7 +39,10 @@ export function ServiceCardItem({ service, index, isMobile }: { service: Service
 
   const isUpdating = useRef(false)
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current || isMobile || isUpdating.current) return
+    if (!cardRef.current || isUpdating.current) return
+    
+    // Quick check to disable flashlight effect computationally if it's likely a touch event
+    if (e.movementX === 0 && e.movementY === 0 && e.type !== 'mousemove') return
     
     const clientX = e.clientX
     const clientY = e.clientY
@@ -71,14 +67,12 @@ export function ServiceCardItem({ service, index, isMobile }: { service: Service
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative overflow-hidden bg-[#0A0E1A]/80 backdrop-blur-md rounded-2xl border border-white/10 flex flex-col justify-between h-full p-6 lg:p-8 group cursor-pointer w-full md:w-[400px] transition-colors hover:border-cyan-500/30 min-h-[220px]"
+      className="relative overflow-hidden bg-[#0A0E1A]/80 backdrop-blur-md rounded-2xl border border-white/10 flex flex-col justify-between h-full p-6 lg:p-8 group cursor-pointer w-full transition-colors hover:border-cyan-500/30 min-h-[220px]"
     >
-      {!isMobile && (
-        <motion.div
-          className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-          style={{ background: spotlight }}
-        />
-      )}
+      <motion.div
+        className="hidden md:block pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: spotlight }}
+      />
 
       <div className="relative z-10 flex flex-col h-full justify-between">
         <div>
@@ -104,7 +98,7 @@ export function ServiceCardItem({ service, index, isMobile }: { service: Service
             <span 
               key={tech} 
               className={`px-3 py-1 text-xs bg-white/5 border rounded-full transition-colors duration-300 ${
-                isHovered || isMobile ? 'border-cyan-500/50 text-white' : 'border-white/10 text-[#8B949E]'
+                isHovered ? 'border-cyan-500/50 text-white' : 'border-white/10 text-[#8B949E]'
               }`}
             >
               {tech}
@@ -116,122 +110,60 @@ export function ServiceCardItem({ service, index, isMobile }: { service: Service
   )
 }
 
-function MobileServices() {
+export function Scene3Services() {
   return (
-    <section id="services" className="w-full bg-[#0A0E1A]">
-      <div className="w-full flex flex-col pt-24 pb-24">
-        {clusters.map((cluster, cIdx) => (
-          <div key={cluster.id} className="min-h-screen w-full flex flex-col justify-center px-6 relative mb-24 last:mb-0">
-            {cIdx === 0 ? (
-              <motion.h2
-                layoutId="we-build-differently"
-                className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue mb-12"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-              >
-                {cluster.name}
-              </motion.h2>
-            ) : (
-              <motion.h2
-                className="text-6xl font-bold text-white mb-12"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-              >
-                {cluster.name}
-              </motion.h2>
-            )}
-            <div className="flex flex-col gap-6 relative z-10 w-full">
-              {cluster.services.map((service, idx) => (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: idx * 0.12,
-                    ease: "easeOut"
-                  }}
-                >
-                  <ServiceCardItem service={service} index={idx} isMobile={true} />
-                </motion.div>
-              ))}
-            </div>
-            {cIdx === 1 && (
-              <div className="absolute top-[30%] right-[-10%] opacity-20 pointer-events-none z-0 overflow-hidden">
-                <Shard shardId={3} className="w-64 h-64 blur-[1px]" />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function DesktopServices() {
-  return (
-    <section id="services" className="w-full bg-[#0A0E1A] py-32">
-      <div className="w-full flex flex-col gap-32 items-center justify-center">
+    <section id="services" className="w-full bg-[#0A0E1A] py-24 lg:py-32 overflow-hidden">
+      <div className="w-full flex flex-col gap-24 lg:gap-32 items-center justify-center">
         
         {clusters.map((cluster, cIdx) => (
           <div 
             key={cluster.id} 
-            className="w-full flex items-start px-8 md:pl-48 md:pr-12 max-w-7xl mx-auto"
+            className="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 px-6 md:pl-24 lg:pl-48 md:pr-12 max-w-7xl mx-auto relative"
           >
-            {/* Left 1/2: Premium Editorial Title */}
-            <div className="w-1/2 flex flex-col justify-start pr-8 sticky top-32">
-              {cIdx === 0 ? (
-                <h2 
-                  className="text-[64px] lg:text-[96px] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue leading-none"
-                >
-                  {cluster.name}
-                </h2>
-              ) : (
-                <h2 className="text-[64px] lg:text-[96px] font-bold tracking-tight text-white leading-none">
-                  {cluster.name}
-                </h2>
-              )}
+            {/* Left 1/2: Premium Editorial Title (Sticky) */}
+            <div className="w-full flex flex-col justify-start lg:pr-8 lg:sticky lg:top-32 h-fit z-20">
+              <motion.h2 
+                className={`text-5xl md:text-7xl lg:text-[96px] font-bold tracking-tight leading-none ${cIdx === 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue' : 'text-white'}`}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              >
+                {cluster.name}
+              </motion.h2>
             </div>
 
-            {/* Right 1/2: Tactile Card Group (Static Stack) */}
-            <div className="w-1/2 flex flex-col gap-8 items-center justify-center">
-              <div className="w-full max-w-[400px] flex flex-col gap-8">
+            {/* Right 1/2: Tactile Card Group */}
+            <div className="w-full flex flex-col gap-6 lg:gap-8 items-center lg:items-start justify-center z-10">
+              <div className="w-full max-w-full md:max-w-[500px] lg:max-w-[400px] flex flex-col gap-6 lg:gap-8">
                 {cluster.services.map((service, idx) => (
-                  <div key={service.id} className="w-full">
-                    <ServiceCardItem service={service} index={idx} isMobile={false} />
-                  </div>
+                  <motion.div 
+                    key={service.id} 
+                    className="w-full"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{
+                      duration: 0.5,
+                      delay: idx * 0.1,
+                      ease: "easeOut"
+                    }}
+                  >
+                    <ServiceCardItem service={service} index={idx} />
+                  </motion.div>
                 ))}
               </div>
             </div>
+
+            {/* Background Decoration */}
+            {cIdx === 1 && (
+              <div className="absolute top-[30%] lg:top-[10%] right-[-20%] lg:right-[-10%] opacity-20 lg:opacity-30 pointer-events-none z-0">
+                <Shard shardId={3} className="w-64 h-64 lg:w-96 lg:h-96 blur-[1px]" />
+              </div>
+            )}
           </div>
         ))}
       </div>
     </section>
   )
-}
-
-export function Scene3Services(props: any) {
-  const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  if (!mounted) return <div className="h-screen bg-[#0A0E1A]" />;
-
-  if (isMobile) {
-    return <MobileServices />
-  }
-
-  return <DesktopServices />
 }
