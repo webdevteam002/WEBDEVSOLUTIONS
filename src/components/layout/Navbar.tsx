@@ -50,7 +50,7 @@ export function Navbar() {
           </div>
 
           {/* Mobile Branding: Top Right */}
-          <div className="md:hidden flex items-center font-bold text-lg tracking-tight z-[105]">
+          <div className="md:hidden flex items-center font-bold text-lg tracking-tight z-[105] whitespace-nowrap shrink-0 pr-2">
             <span className="text-brand-cyan">WebDev</span>
             <span className="text-white ml-1">Solutions</span>
           </div>

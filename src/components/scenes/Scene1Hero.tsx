@@ -159,17 +159,32 @@ export function Scene1Hero() {
   const chevronOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
   return (
     <div ref={containerRef} className="relative w-full h-[400vh] shrink-0">
-      <div className="sticky top-0 left-0 w-full h-screen flex flex-col md:flex-row items-center z-0 overflow-hidden bg-[#0A0E1A]">
+      <div className="sticky top-0 left-0 w-full h-screen grid grid-cols-1 md:grid-cols-2 z-0 overflow-hidden bg-[#0A0E1A]">
         
-        {/* Left Column: Text (Visible above the background) */}
-        <div className="w-full md:w-1/2 h-full flex flex-col justify-center px-6 md:pl-32 z-20 pt-16 md:pt-0 pointer-events-auto">
+        {/* Right Column (Graphic) - Reflows to top on mobile via order-1 */}
+        <div className="order-1 md:order-2 w-full h-[50vh] md:h-full relative z-0 pointer-events-none">
+          {/* Fallback gradient shown until first frame loads */}
+          {!isFirstFrameLoaded && (
+            <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-[#0A0E1A] to-[#1E40AF]/20" />
+          )}
+          {/* Canvas for 60fps hardware accelerated rendering */}
+          <canvas 
+            ref={canvasRef}
+            className={`w-full h-full object-contain md:object-cover mix-blend-screen transition-opacity duration-500 ${isFirstFrameLoaded ? 'opacity-60 md:opacity-100' : 'opacity-0'}`}
+          />
+          {/* Fade mask for mobile/desktop seamless blending */}
+          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#0A0E1A] via-[#0A0E1A]/80 md:via-transparent to-transparent pointer-events-none" />
+        </div>
+
+        {/* Left Column (Text) - Reflows to bottom on mobile via order-2 */}
+        <div className="order-2 md:order-1 w-full h-[50vh] md:h-full flex flex-col justify-center px-6 md:pl-32 z-20 pointer-events-auto pb-12 md:pb-0">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
-            className="text-4xl md:text-6xl font-bold text-white mb-10 md:mb-6 leading-tight drop-shadow-lg"
+            className="text-4xl md:text-6xl font-bold text-white mb-6 md:mb-6 leading-tight drop-shadow-lg"
           >
-            We Engineer <br/>
+            We Engineer <br className="hidden md:block"/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-blue">
               Digital Experiences
             </span><br/>
@@ -179,7 +194,7 @@ export function Scene1Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="text-lg text-[#C9CDD6] mb-12 md:mb-8 max-w-lg"
+            className="text-lg text-[#C9CDD6] mb-8 md:mb-8 max-w-lg"
           >
             A premium Web3 & Full-Stack Agency with 2+ Years Experience delivering cinematic websites and scalable applications.
           </motion.p>
@@ -192,21 +207,6 @@ export function Scene1Hero() {
               Explore Our Work
             </a>
           </motion.div>
-        </div>
-
-        {/* Right Column: Animated Frames */}
-        <div className="absolute inset-0 md:relative md:w-1/2 h-full z-0 pointer-events-none">
-          {/* Fallback gradient shown until first frame loads */}
-          {!isFirstFrameLoaded && (
-            <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-[#0A0E1A] to-[#1E40AF]/20" />
-          )}
-          {/* Canvas for 60fps hardware accelerated rendering */}
-          <canvas 
-            ref={canvasRef}
-            className={`w-full h-full object-contain object-top md:object-cover md:object-[center_15%] mix-blend-screen transition-opacity duration-500 ${isFirstFrameLoaded ? 'opacity-60 md:opacity-100' : 'opacity-0'}`}
-          />
-          {/* Fade mask for mobile/desktop seamless blending */}
-          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#0A0E1A] via-[#0A0E1A]/80 md:via-transparent to-transparent pointer-events-none" />
         </div>
 
         {/* Scroll-cue chevron */}
